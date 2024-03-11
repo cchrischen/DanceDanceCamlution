@@ -6,3 +6,4 @@
 * Daniel Xie (dyx2)
 * Nam Anh Dang (nd433)
 * Shubham Mohole (sam588)
+* Rishi Yennu (rry9)
