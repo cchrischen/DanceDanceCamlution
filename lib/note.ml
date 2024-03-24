@@ -17,7 +17,7 @@ let create_note time base_score = { time; base_score; has_been_hit = false }
 
 let try_hit note time_hit =
   if note.has_been_hit then false
-  else if abs (time_hit - note.time) <= 600 then true
+  else if abs (time_hit - note.time) <= miss_window then true
   else false
 
 let calc_score note combo accuracy =
@@ -33,5 +33,5 @@ let calc_accuracy note time_hit =
   let time_diff = abs (time_hit - note.time) in
   if time_diff < 200 then Perfect
   else if time_diff < 400 then Great
-  else if time_diff < 600 then Good
+  else if time_diff < miss_window then Good
   else Miss
