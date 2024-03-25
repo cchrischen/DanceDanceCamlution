@@ -8,6 +8,9 @@ let counter_d = ref 0
 let setup () =
   let open Raylib in
   init_window width height "raylib [shapes] example - collision area";
+  init_audio_device ();
+  let music = load_music_stream "data/country.mp3" in
+  play_music_stream music;
   let box_a =
     ref
       ( Rectangle.create
@@ -61,7 +64,7 @@ let setup () =
       80.0 80.0
   in
   set_target_fps 60;
-  (false, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd)
+  (false, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music)
 
 let reset_box_cond box =
   let open Raylib in
@@ -69,12 +72,13 @@ let reset_box_cond box =
     y (fst !box) +. height (fst !box) >= Float.of_int (get_screen_height ())
     || y (fst !box) <= 0.0)
 
-let rec loop (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd)
-    =
+let rec loop
+    (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
       let open Raylib in
+      update_music_stream music;
       (* Move box if not paused *)
       (if not pause then
          Rectangle.(set_y (fst !box_a) (y (fst !box_a) +. snd !box_a)));
@@ -172,6 +176,16 @@ let rec loop (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd)
 
       end_drawing ();
 
-      loop (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd)
+      loop
+        ( pause,
+          box_a,
+          box_b,
+          box_c,
+          box_d,
+          box_aa,
+          box_bb,
+          box_cc,
+          box_dd,
+          music )
 
 let () = setup () |> loop
