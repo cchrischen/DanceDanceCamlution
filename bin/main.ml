@@ -1,9 +1,11 @@
 let width = 1280
 let height = 720
+let score = ref 0
 let counter_a = ref 0
 let counter_b = ref 0
 let counter_c = ref 0
 let counter_d = ref 0
+let speed = 10.0
 
 let setup () =
   let open Raylib in
@@ -16,28 +18,28 @@ let setup () =
       ( Rectangle.create
           (Float.of_int ((get_screen_width () / 2) - 240))
           (Float.of_int 0) 80.0 200.0,
-        4.0 )
+        speed )
   in
   let box_b =
     ref
       ( Rectangle.create
           (Float.of_int ((get_screen_width () / 2) - 120))
           (Float.of_int 0) 80.0 200.0,
-        4.0 )
+        speed )
   in
   let box_c =
     ref
       ( Rectangle.create
           (Float.of_int (get_screen_width () / 2))
           (Float.of_int 0) 80.0 200.0,
-        4.0 )
+        speed )
   in
   let box_d =
     ref
       ( Rectangle.create
           (Float.of_int ((get_screen_width () / 2) + 120))
           (Float.of_int 0) 80.0 200.0,
-        4.0 )
+        speed )
   in
   let box_aa =
     Rectangle.create
@@ -94,7 +96,7 @@ let rec loop
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) - 240))
                   (Float.of_int 0) 80.0 200.0,
-                4.0 )
+                speed )
           in
           !new_box
         else !box_a;
@@ -105,7 +107,7 @@ let rec loop
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) - 120))
                   (Float.of_int 0) 80.0 200.0,
-                4.0 )
+                speed )
           in
           !new_box
         else !box_b;
@@ -116,7 +118,7 @@ let rec loop
               ( Rectangle.create
                   (Float.of_int (get_screen_width () / 2))
                   (Float.of_int 0) 80.0 200.0,
-                4.0 )
+                speed )
           in
           !new_box
         else !box_c;
@@ -127,7 +129,7 @@ let rec loop
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) + 120))
                   (Float.of_int 0) 80.0 200.0,
-                4.0 )
+                speed )
           in
           !new_box
         else !box_d;
@@ -172,6 +174,11 @@ let rec loop
         ((get_screen_width () / 2) + 140)
         ((get_screen_height () / 2) + 105)
         40 Color.black;
+      draw_text
+        ("Score: " ^ string_of_int !score)
+        (get_screen_width () - 250)
+        50 40 Color.black;
+
       draw_fps 10 10;
 
       end_drawing ();
