@@ -149,13 +149,25 @@ let rec loop
       draw_rectangle_rec box_cc Color.blue;
       draw_rectangle_rec box_dd Color.blue;
 
-      if is_key_down Key.D then draw_rectangle_rec box_aa Color.red;
+      (if is_key_down Key.D then
+         let () = draw_rectangle_rec box_aa Color.red in
+         let collision = get_collision_rec (fst !box_a) box_aa in
+         score := !score + int_of_float (floor (Rectangle.width collision)));
       if is_key_released Key.D then counter_a := !counter_a + 1;
-      if is_key_down Key.F then draw_rectangle_rec box_bb Color.red;
+      (if is_key_down Key.F then
+         let () = draw_rectangle_rec box_bb Color.red in
+         let collision = get_collision_rec (fst !box_b) box_bb in
+         score := !score + int_of_float (floor (Rectangle.width collision)));
       if is_key_released Key.F then counter_b := !counter_b + 1;
-      if is_key_down Key.J then draw_rectangle_rec box_cc Color.red;
+      (if is_key_down Key.J then
+         let () = draw_rectangle_rec box_cc Color.red in
+         let collision = get_collision_rec (fst !box_c) box_cc in
+         score := !score + int_of_float (floor (Rectangle.width collision)));
       if is_key_released Key.J then counter_c := !counter_c + 1;
-      if is_key_down Key.K then draw_rectangle_rec box_dd Color.red;
+      (if is_key_down Key.K then
+         let () = draw_rectangle_rec box_dd Color.red in
+         let collision = get_collision_rec (fst !box_d) box_dd in
+         score := !score + int_of_float (floor (Rectangle.width collision)));
       if is_key_released Key.K then counter_d := !counter_d + 1;
 
       draw_text (string_of_int !counter_a)
@@ -176,7 +188,7 @@ let rec loop
         40 Color.black;
       draw_text
         ("Score: " ^ string_of_int !score)
-        (get_screen_width () - 250)
+        (get_screen_width () - 350)
         50 40 Color.black;
 
       draw_fps 10 10;
