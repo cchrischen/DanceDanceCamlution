@@ -1,3 +1,5 @@
+open Raylib
+
 type accuracy =
   | Perfect
   | Great
@@ -7,10 +9,12 @@ type accuracy =
 type t
 (** The type underlying each note. *)
 
-val create_note : int -> int -> t
+val create_note : float -> float -> t
 (** Creates a note given [time], the time that the note reaches the bar (i.e.,
     the optimal time for the player to hit it), and [base_score], the default
     score value of this note without combo applied. *)
+
+val update : t -> Rectangle.t
 
 val try_hit : t -> int -> bool
 (** Attempt to hit the note, at time [hit_time]. The hit may or may not be valid
