@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-let width = 800
-let height = 450
-=======
 let width = 1280
 let height = 720
 let score = ref 0
@@ -10,19 +6,10 @@ let counter_b = ref 0
 let counter_c = ref 0
 let counter_d = ref 0
 let speed = 10.0
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
 
 let setup () =
   let open Raylib in
   init_window width height "raylib [shapes] example - collision area";
-<<<<<<< HEAD
-  let box_a = ref (Rectangle.create 10.0 (Float.of_int 0) 50.0 200.0, 4.0) in
-  let box_b = ref (Rectangle.create 250.0 (Float.of_int 0) 50.0 200.0, 4.0) in
-  let box_c = ref (Rectangle.create 500.0 (Float.of_int 0) 50.0 200.0, 4.0) in
-  let box_d = ref (Rectangle.create 700.0 (Float.of_int 0) 50.0 200.0, 4.0) in
-  set_target_fps 60;
-  (false, box_a, box_b, box_c, box_d)
-=======
   init_audio_device ();
   let music = load_music_stream "data/country.mp3" in
   play_music_stream music;
@@ -80,7 +67,6 @@ let setup () =
   in
   set_target_fps 60;
   (false, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music)
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
 
 let reset_box_cond box =
   let open Raylib in
@@ -88,20 +74,13 @@ let reset_box_cond box =
     y (fst !box) +. height (fst !box) >= Float.of_int (get_screen_height ())
     || y (fst !box) <= 0.0)
 
-<<<<<<< HEAD
-let rec loop (pause, box_a, box_b, box_c, box_d) =
-=======
 let rec loop
     (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music) =
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
       let open Raylib in
-<<<<<<< HEAD
-=======
       update_music_stream music;
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
       (* Move box if not paused *)
       (if not pause then
          Rectangle.(set_y (fst !box_a) (y (fst !box_a) +. snd !box_a)));
@@ -113,60 +92,44 @@ let rec loop
       box_a :=
         if reset_box_cond box_a then
           let new_box =
-<<<<<<< HEAD
-            ref (Rectangle.create 10.0 (Float.of_int 0) 50.0 200.0, 4.0)
-=======
             ref
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) - 240))
                   (Float.of_int 0) 80.0 200.0,
                 speed )
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
           in
           !new_box
         else !box_a;
       box_b :=
         if reset_box_cond box_b then
           let new_box =
-<<<<<<< HEAD
-            ref (Rectangle.create 250.0 (Float.of_int 0) 50.0 200.0, 4.0)
-=======
             ref
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) - 120))
                   (Float.of_int 0) 80.0 200.0,
                 speed )
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
           in
           !new_box
         else !box_b;
       box_c :=
         if reset_box_cond box_c then
           let new_box =
-<<<<<<< HEAD
-            ref (Rectangle.create 500.0 (Float.of_int 0) 50.0 200.0, 4.0)
-=======
             ref
               ( Rectangle.create
                   (Float.of_int (get_screen_width () / 2))
                   (Float.of_int 0) 80.0 200.0,
                 speed )
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
           in
           !new_box
         else !box_c;
       box_d :=
         if reset_box_cond box_d then
           let new_box =
-<<<<<<< HEAD
-            ref (Rectangle.create 700.0 (Float.of_int 0) 50.0 200.0, 4.0)
-=======
             ref
               ( Rectangle.create
                   (Float.of_int ((get_screen_width () / 2) + 120))
                   (Float.of_int 0) 80.0 200.0,
                 speed )
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
           in
           !new_box
         else !box_d;
@@ -181,8 +144,6 @@ let rec loop
       draw_rectangle_rec (fst !box_c) Color.black;
       draw_rectangle_rec (fst !box_d) Color.black;
 
-<<<<<<< HEAD
-=======
       draw_rectangle_rec box_aa Color.blue;
       draw_rectangle_rec box_bb Color.blue;
       draw_rectangle_rec box_cc Color.blue;
@@ -230,14 +191,10 @@ let rec loop
         (get_screen_width () - 350)
         50 40 Color.black;
 
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
       draw_fps 10 10;
 
       end_drawing ();
 
-<<<<<<< HEAD
-      loop (pause, box_a, box_b, box_c, box_d)
-=======
       loop
         ( pause,
           box_a,
@@ -249,6 +206,5 @@ let rec loop
           box_cc,
           box_dd,
           music )
->>>>>>> aba43111710060bfcce67ec7296f445a1f625faa
 
 let () = setup () |> loop
