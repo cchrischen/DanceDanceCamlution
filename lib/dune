@@ -1,5 +1,6 @@
 (library
  (inline_tests)
  (name finalproject)
+ (libraries raylib)
  (preprocess
   (pps ppx_inline_test)))

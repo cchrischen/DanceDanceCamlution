@@ -1,210 +1,104 @@
+open Finalproject
+
 let width = 1280
 let height = 720
 let score = ref 0
-let counter_a = ref 0
-let counter_b = ref 0
-let counter_c = ref 0
-let counter_d = ref 0
-let speed = 10.0
+
+(* delete later; here to confirm button presses work *)
+let counters = Array.make Constants.num_notes 0
+
+let spread_x_positions num_els el_width =
+  let screen_width = Raylib.get_screen_width () |> float_of_int in
+  let gap =
+    (screen_width -. (float_of_int num_els *. el_width))
+    /. (float_of_int num_els +. 1.)
+  in
+  num_els |> Utils.make_list |> List.map float_of_int
+  |> List.map (fun value -> (value *. gap) +. ((value -. 1.) *. el_width))
 
 let setup () =
   let open Raylib in
   init_window width height "raylib [shapes] example - collision area";
   init_audio_device ();
+
   let music = load_music_stream "data/country.mp3" in
   play_music_stream music;
-  let box_a =
-    ref
-      ( Rectangle.create
-          (Float.of_int ((get_screen_width () / 2) - 240))
-          (Float.of_int 0) 80.0 200.0,
-        speed )
+
+  let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
+
+  let notes = List.map (fun x -> Note.create_note x 40.) x_pos in
+
+  let buttons_y = (get_screen_height () / 2) + 80 |> float_of_int in
+  let buttons =
+    List.map (fun x -> Rectangle.create x buttons_y 80. 80.) x_pos
   in
-  let box_b =
-    ref
-      ( Rectangle.create
-          (Float.of_int ((get_screen_width () / 2) - 120))
-          (Float.of_int 0) 80.0 200.0,
-        speed )
-  in
-  let box_c =
-    ref
-      ( Rectangle.create
-          (Float.of_int (get_screen_width () / 2))
-          (Float.of_int 0) 80.0 200.0,
-        speed )
-  in
-  let box_d =
-    ref
-      ( Rectangle.create
-          (Float.of_int ((get_screen_width () / 2) + 120))
-          (Float.of_int 0) 80.0 200.0,
-        speed )
-  in
-  let box_aa =
-    Rectangle.create
-      (Float.of_int ((get_screen_width () / 2) - 240))
-      (Float.of_int ((get_screen_height () / 2) + 80))
-      80.0 80.0
-  in
-  let box_bb =
-    Rectangle.create
-      (Float.of_int ((get_screen_width () / 2) - 120))
-      (Float.of_int ((get_screen_height () / 2) + 80))
-      80.0 80.0
-  in
-  let box_cc =
-    Rectangle.create
-      (Float.of_int (get_screen_width () / 2))
-      (Float.of_int ((get_screen_height () / 2) + 80))
-      80.0 80.0
-  in
-  let box_dd =
-    Rectangle.create
-      (Float.of_int ((get_screen_width () / 2) + 120))
-      (Float.of_int ((get_screen_height () / 2) + 80))
-      80.0 80.0
-  in
+
   set_target_fps 60;
-  (false, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music)
 
-let reset_box_cond box =
+  (false, notes, buttons, music)
+
+let draw notes buttons =
   let open Raylib in
-  Rectangle.(
-    y (fst !box) +. height (fst !box) >= Float.of_int (get_screen_height ())
-    || y (fst !box) <= 0.0)
+  let updated_notes = List.map Note.update notes in
+  let _ =
+    List.map (fun note -> draw_rectangle_rec note Color.black) updated_notes
+  in
+  ();
 
-let rec loop
-    (pause, box_a, box_b, box_c, box_d, box_aa, box_bb, box_cc, box_dd, music) =
+  let _ = List.map (fun key -> draw_rectangle_rec key Color.blue) buttons in
+  ();
+
+  let handle_key_press note button key =
+    if is_key_down key then (
+      let () = draw_rectangle_rec button Color.red in
+      let collision = get_collision_rec note button in
+      score := !score + (collision |> Rectangle.width |> floor |> int_of_float));
+      if is_key_released key then
+        let idx_opt = List.find_index (fun x -> x = key) Constants.bindings in
+        let idx =
+          match idx_opt with
+          | None -> failwith "Cannot find key binding."
+          | Some i -> i
+        in
+        counters.(idx) <- counters.(idx) + 1
+  in
+
+  let _ =
+    Utils.map3 handle_key_press updated_notes buttons Constants.bindings
+  in
+
+  let _ =
+    let x_positions =
+      spread_x_positions Constants.num_notes 50.
+      |> List.map int_of_float |> Array.of_list
+    in
+    let y_pos = (get_screen_height () / 2) + 105 in
+    Array.map2
+      (fun count x -> draw_text (string_of_int count) x y_pos 40 Color.black)
+      counters x_positions
+  in
+  draw_text
+    ("Score: " ^ string_of_int !score)
+    (get_screen_width () - 350)
+    50 40 Color.black;
+  draw_fps 10 10
+
+let rec loop (pause, notes, buttons, music) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
       let open Raylib in
       update_music_stream music;
-      (* Move box if not paused *)
-      (if not pause then
-         Rectangle.(set_y (fst !box_a) (y (fst !box_a) +. snd !box_a)));
-      Rectangle.(set_y (fst !box_b) (y (fst !box_b) +. snd !box_b));
-      Rectangle.(set_y (fst !box_c) (y (fst !box_c) +. snd !box_c));
-      Rectangle.(set_y (fst !box_d) (y (fst !box_d) +. snd !box_d));
 
-      (* Bounce box on x screen limits *)
-      box_a :=
-        if reset_box_cond box_a then
-          let new_box =
-            ref
-              ( Rectangle.create
-                  (Float.of_int ((get_screen_width () / 2) - 240))
-                  (Float.of_int 0) 80.0 200.0,
-                speed )
-          in
-          !new_box
-        else !box_a;
-      box_b :=
-        if reset_box_cond box_b then
-          let new_box =
-            ref
-              ( Rectangle.create
-                  (Float.of_int ((get_screen_width () / 2) - 120))
-                  (Float.of_int 0) 80.0 200.0,
-                speed )
-          in
-          !new_box
-        else !box_b;
-      box_c :=
-        if reset_box_cond box_c then
-          let new_box =
-            ref
-              ( Rectangle.create
-                  (Float.of_int (get_screen_width () / 2))
-                  (Float.of_int 0) 80.0 200.0,
-                speed )
-          in
-          !new_box
-        else !box_c;
-      box_d :=
-        if reset_box_cond box_d then
-          let new_box =
-            ref
-              ( Rectangle.create
-                  (Float.of_int ((get_screen_width () / 2) + 120))
-                  (Float.of_int 0) 80.0 200.0,
-                speed )
-          in
-          !new_box
-        else !box_d;
-      (* Pause game *)
       let pause = if is_key_pressed Key.Space then not pause else pause in
 
       begin_drawing ();
       clear_background Color.raywhite;
 
-      draw_rectangle_rec (fst !box_a) Color.black;
-      draw_rectangle_rec (fst !box_b) Color.black;
-      draw_rectangle_rec (fst !box_c) Color.black;
-      draw_rectangle_rec (fst !box_d) Color.black;
-
-      draw_rectangle_rec box_aa Color.blue;
-      draw_rectangle_rec box_bb Color.blue;
-      draw_rectangle_rec box_cc Color.blue;
-      draw_rectangle_rec box_dd Color.blue;
-
-      (if is_key_down Key.D then
-         let () = draw_rectangle_rec box_aa Color.red in
-         let collision = get_collision_rec (fst !box_a) box_aa in
-         score := !score + int_of_float (floor (Rectangle.width collision)));
-      if is_key_released Key.D then counter_a := !counter_a + 1;
-      (if is_key_down Key.F then
-         let () = draw_rectangle_rec box_bb Color.red in
-         let collision = get_collision_rec (fst !box_b) box_bb in
-         score := !score + int_of_float (floor (Rectangle.width collision)));
-      if is_key_released Key.F then counter_b := !counter_b + 1;
-      (if is_key_down Key.J then
-         let () = draw_rectangle_rec box_cc Color.red in
-         let collision = get_collision_rec (fst !box_c) box_cc in
-         score := !score + int_of_float (floor (Rectangle.width collision)));
-      if is_key_released Key.J then counter_c := !counter_c + 1;
-      (if is_key_down Key.K then
-         let () = draw_rectangle_rec box_dd Color.red in
-         let collision = get_collision_rec (fst !box_d) box_dd in
-         score := !score + int_of_float (floor (Rectangle.width collision)));
-      if is_key_released Key.K then counter_d := !counter_d + 1;
-
-      draw_text (string_of_int !counter_a)
-        ((get_screen_width () / 2) - 220)
-        ((get_screen_height () / 2) + 105)
-        40 Color.black;
-      draw_text (string_of_int !counter_b)
-        ((get_screen_width () / 2) - 100)
-        ((get_screen_height () / 2) + 105)
-        40 Color.black;
-      draw_text (string_of_int !counter_c)
-        ((get_screen_width () / 2) + 20)
-        ((get_screen_height () / 2) + 105)
-        40 Color.black;
-      draw_text (string_of_int !counter_d)
-        ((get_screen_width () / 2) + 140)
-        ((get_screen_height () / 2) + 105)
-        40 Color.black;
-      draw_text
-        ("Score: " ^ string_of_int !score)
-        (get_screen_width () - 350)
-        50 40 Color.black;
-
-      draw_fps 10 10;
+      draw notes buttons;
 
       end_drawing ();
 
-      loop
-        ( pause,
-          box_a,
-          box_b,
-          box_c,
-          box_d,
-          box_aa,
-          box_bb,
-          box_cc,
-          box_dd,
-          music )
+      loop (pause, notes, buttons, music)
 
 let () = setup () |> loop

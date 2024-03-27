@@ -1,3 +1,5 @@
+open Raylib
+
 type accuracy =
   | Perfect
   | Great
@@ -5,15 +7,38 @@ type accuracy =
   | Miss
 
 type t = {
+  mutable sprite : Rectangle.t;
   time : int;
   base_score : int;
   has_been_hit : bool;
+  speed : float;
 }
 
 (* [miss_window] is how much leeway the player has before the note counts as a
    miss (either early or late). *)
 let miss_window = 600
-let create_note time base_score = { time; base_score; has_been_hit = false }
+
+let create_note x y =
+  {
+    sprite = Rectangle.create x y Constants.note_width Constants.note_heigth;
+    time = 0;
+    base_score = 10;
+    has_been_hit = false;
+    speed = 10.;
+  }
+
+let reset_box_cond box =
+  let open Raylib in
+  Rectangle.(
+    y (fst !box) +. height (fst !box) >= Float.of_int (get_screen_height ())
+    || y (fst !box) <= 0.0)
+
+let update note =
+  let sprite = note.sprite in
+  Rectangle.(set_y sprite (y sprite +. note.speed));
+  if Rectangle.y sprite > (get_screen_height () |> float_of_int) then
+    Rectangle.set_y sprite 0.;
+  sprite
 
 let try_hit note time_hit =
   if note.has_been_hit then false
