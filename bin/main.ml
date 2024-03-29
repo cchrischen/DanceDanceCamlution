@@ -18,7 +18,7 @@ let spread_x_positions num_els el_width =
 
 let setup () =
   let open Raylib in
-  init_window width height "raylib [shapes] example - collision area";
+  init_window width height "Tile Game";
   init_audio_device ();
 
   let music = load_music_stream "data/country.mp3" in
@@ -81,7 +81,7 @@ let draw notes buttons =
     ("Score: " ^ string_of_int !score)
     (get_screen_width () - 350)
     50 40 Color.black;
-  draw_fps 10 10
+  draw_fps 5 5
 
 let rec loop (pause, notes, buttons, music) =
   match Raylib.window_should_close () with

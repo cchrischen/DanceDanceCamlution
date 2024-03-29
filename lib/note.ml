@@ -26,9 +26,7 @@ let create_note x y =
     has_been_hit = false;
     speed = 10.;
   }
-(* let reset_box_cond box = let open Raylib in Rectangle.( y (fst !box) +.
-   height (fst !box) >= Float.of_int (get_screen_height ()) || y (fst !box) <=
-   0.0) *)
+
 
 let update note =
   let sprite = note.sprite in
