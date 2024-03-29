@@ -81,7 +81,7 @@ let draw notes buttons =
     ("Score: " ^ string_of_int !score)
     (get_screen_width () - 350)
     50 40 Color.black;
-  draw_fps 10 10
+  draw_fps 5 5
 
 let rec loop (pause, notes, buttons, music) =
   match Raylib.window_should_close () with
