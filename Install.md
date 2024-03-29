@@ -3,8 +3,7 @@
     ```shell
     opam update
     opam upgrade
-    opam depext raylib
-    opam install raylib
+    opam install raylib batteries
     ```
 2. Run the program
     ```shell
