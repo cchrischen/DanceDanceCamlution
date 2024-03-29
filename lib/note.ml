@@ -27,6 +27,7 @@ let create_note x y =
     speed = 10.;
   }
 
+
 let update note =
   let sprite = note.sprite in
   Rectangle.(set_y sprite (y sprite +. note.speed));
