@@ -49,18 +49,18 @@ let draw notes buttons =
   ();
 
   let handle_key_press note button key =
-    if is_key_down key then (
-      let () = draw_rectangle_rec button Color.red in
-      let collision = get_collision_rec note button in
-      score := !score + (collision |> Rectangle.width |> floor |> int_of_float));
-      if is_key_released key then
-        let idx_opt = List.find_index (fun x -> x = key) Constants.bindings in
-        let idx =
-          match idx_opt with
-          | None -> failwith "Cannot find key binding."
-          | Some i -> i
-        in
-        counters.(idx) <- counters.(idx) + 1
+    (if is_key_down key then
+       let () = draw_rectangle_rec button Color.red in
+       let collision = get_collision_rec note button in
+       score := !score + (collision |> Rectangle.width |> floor |> int_of_float));
+    if is_key_released key then
+      let idx_opt = List.find_index (fun x -> x = key) Constants.bindings in
+      let idx =
+        match idx_opt with
+        | None -> failwith "Cannot find key binding."
+        | Some i -> i
+      in
+      counters.(idx) <- counters.(idx) + 1
   in
 
   let _ =
