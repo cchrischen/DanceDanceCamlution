@@ -18,7 +18,7 @@ let spread_x_positions num_els el_width =
 
 let setup () =
   let open Raylib in
-  init_window width height "raylib [shapes] example - collision area";
+  init_window width height "Tile Game";
   init_audio_device ();
 
   let music = load_music_stream "data/country.mp3" in
