@@ -3,6 +3,7 @@ open Finalproject
 let width = 1280
 let height = 720
 let score = ref 0
+let valid_press = ref true
 
 (* delete later; here to confirm button presses work *)
 let counters = Array.make Constants.num_notes 0
@@ -51,9 +52,15 @@ let draw notes buttons =
   let handle_key_press note button key =
     (if is_key_down key then
        let () = draw_rectangle_rec button Color.red in
-       let collision = get_collision_rec note button in
-       score := !score + (collision |> Rectangle.width |> floor |> int_of_float));
-    if is_key_released key then
+       if !valid_press then
+         let collision = get_collision_rec note button in
+         let points = collision |> Rectangle.width |> floor |> int_of_float in
+         begin
+           score := !score + points;
+           if points = 0 then valid_press := false
+         end);
+    if is_key_released key then begin
+      valid_press := true;
       let idx_opt = List.find_index (fun x -> x = key) Constants.bindings in
       let idx =
         match idx_opt with
@@ -61,6 +68,7 @@ let draw notes buttons =
         | Some i -> i
       in
       counters.(idx) <- counters.(idx) + 1
+    end
   in
 
   let _ =
