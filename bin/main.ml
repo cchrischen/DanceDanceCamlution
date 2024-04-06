@@ -4,6 +4,7 @@ let width = 1280
 let height = 720
 let score = ref 0
 let valid_press = ref true
+let play_game = ref false
 
 (* delete later; here to confirm button presses work *)
 let counters = Array.make Constants.num_notes 0
@@ -17,11 +18,36 @@ let spread_x_positions num_els el_width =
   num_els |> Utils.make_list |> List.map float_of_int
   |> List.map (fun value -> (value *. gap) +. ((value -. 1.) *. el_width))
 
-let setup () =
+let setupTitle () =
+  let open Raylib in
+  init_window width height "Title Screen";
+  set_target_fps 60;
+  let gif = load_image "data/ICU.gif" in
+  let texture = load_texture_from_image gif in
+  unload_image gif;
+  texture
+
+let rec title_loop image =
+  match Raylib.window_should_close () with
+  | true -> Raylib.close_window ()
+  | false ->
+      let open Raylib in
+      begin_drawing ();
+      clear_background Color.raywhite;
+      draw_text "Welcome to DanceDanceCamlution" 0 0 50 Color.black;
+      draw_text "Press Enter to Play, Space to Pause, or Exit Window to Quit" 90
+        100 30 Color.gold;
+      draw_texture image 400 250 Color.white;
+      end_drawing ();
+      if is_key_pressed Key.Enter then begin
+        play_game := not !play_game
+      end
+      else title_loop image
+
+let setupGame () =
   let open Raylib in
   init_window width height "Tile Game";
   init_audio_device ();
-
   let music = load_music_stream "data/country.mp3" in
   play_music_stream music;
 
@@ -91,22 +117,30 @@ let draw notes buttons =
     50 40 Color.black;
   draw_fps 5 5
 
-let rec loop (pause, notes, buttons, music) =
+let rec loop (_, notes, buttons, music) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
-      let open Raylib in
-      update_music_stream music;
+      let pause =
+        if Raylib.is_key_down Raylib.Key.Space then begin
+          Raylib.draw_text "Paused" 300 200 40 Raylib.Color.red;
+          true
+        end
+        else false
+      in
+      if not pause then (
+        let open Raylib in
+        update_music_stream music;
+        begin_drawing ();
+        clear_background Color.raywhite;
 
-      let pause = if is_key_pressed Key.Space then not pause else pause in
+        draw notes buttons;
 
-      begin_drawing ();
-      clear_background Color.raywhite;
+        end_drawing ();
 
-      draw notes buttons;
+        loop (pause, notes, buttons, music))
+      else loop (pause, notes, buttons, music)
 
-      end_drawing ();
-
-      loop (pause, notes, buttons, music)
-
-let () = setup () |> loop
+let () =
+  setupTitle () |> title_loop;
+  if !play_game then setupGame () |> loop else print_string "You ended the game"
