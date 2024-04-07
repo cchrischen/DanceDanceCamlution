@@ -39,9 +39,13 @@ let setup () =
 
   (false, notes, buttons, music)
 
+let check_combo_break (note, break_combo) =
+  if break_combo then combo := 0;
+  note
+
 let draw notes buttons =
   let open Raylib in
-  let updated_notes = List.map Note.update notes in
+  let updated_notes = List.map check_combo_break (List.map Note.update notes) in
   let _ =
     List.map
       (fun note -> draw_rectangle_rec (Note.get_sprite note) Color.black)
@@ -55,16 +59,18 @@ let draw notes buttons =
   let handle_key_press note button key =
     (if is_key_down key then
        let () = draw_rectangle_rec button Color.red in
-       if !valid_press then
+       if !valid_press && not (Note.has_been_hit note) then
          let collision = get_collision_rec (Note.get_sprite note) button in
-         let points = collision |> Rectangle.width |> floor |> int_of_float in
-         begin
-           score := !score + points;
-           if points = 0 then valid_press := false
-           else begin
-             combo := !combo + 1;
-             Note.hit note
-           end
+         let overlap =
+           (collision |> Rectangle.height)
+           /. (note |> Note.get_sprite |> Rectangle.height)
+         in
+         if overlap = 0. then valid_press := false
+         else begin
+           score :=
+             !score + (overlap |> Note.calc_accuracy |> Note.calc_score !combo);
+           combo := !combo + 1;
+           Note.hit note
          end);
     if is_key_released key then begin
       valid_press := true;
@@ -104,7 +110,8 @@ let draw_combo combo =
     (string_of_int !combo ^ "x")
     (get_screen_width () - 125)
     (get_screen_height () - 100)
-    40 Color.black
+    40
+    (if !combo = 0 then Color.red else Color.black)
 
 let rec loop (pause, notes, buttons, music) =
   match Raylib.window_should_close () with
