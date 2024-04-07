@@ -43,7 +43,9 @@ let draw notes buttons =
   let open Raylib in
   let updated_notes = List.map Note.update notes in
   let _ =
-    List.map (fun note -> draw_rectangle_rec note Color.black) updated_notes
+    List.map
+      (fun note -> draw_rectangle_rec (Note.get_sprite note) Color.black)
+      updated_notes
   in
   ();
 
@@ -54,11 +56,15 @@ let draw notes buttons =
     (if is_key_down key then
        let () = draw_rectangle_rec button Color.red in
        if !valid_press then
-         let collision = get_collision_rec note button in
+         let collision = get_collision_rec (Note.get_sprite note) button in
          let points = collision |> Rectangle.width |> floor |> int_of_float in
          begin
            score := !score + points;
-           if points = 0 then valid_press := false else combo := !combo + 1
+           if points = 0 then valid_press := false
+           else begin
+             combo := !combo + 1;
+             Note.hit note
+           end
          end);
     if is_key_released key then begin
       valid_press := true;

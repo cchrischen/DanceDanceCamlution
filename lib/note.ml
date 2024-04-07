@@ -10,7 +10,7 @@ type t = {
   sprite : Rectangle.t;
   time : int;
   base_score : int;
-  has_been_hit : bool;
+  mutable has_been_hit : bool;
   speed : float;
 }
 
@@ -20,25 +20,28 @@ let miss_window = 600
 
 let create_note x y =
   {
-    sprite = Rectangle.create x y Constants.note_width Constants.note_heigth;
+    sprite = Rectangle.create x y Constants.note_width Constants.note_height;
     time = 0;
     base_score = 10;
     has_been_hit = false;
     speed = 10.;
   }
 
-
 let update note =
   let sprite = note.sprite in
   Rectangle.(set_y sprite (y sprite +. note.speed));
-  if Rectangle.y sprite > (get_screen_height () |> float_of_int) then
+  if Rectangle.y sprite > (get_screen_height () |> float_of_int) then begin
     Rectangle.set_y sprite 0.;
-  sprite
+    Rectangle.set_height note.sprite Constants.note_height;
+    note.has_been_hit <- false
+  end;
+  note
 
-let try_hit note time_hit =
-  if note.has_been_hit then false
-  else if abs (time_hit - note.time) <= miss_window then true
-  else false
+let hit note =
+  if not note.has_been_hit then Rectangle.set_height note.sprite 0.;
+  note.has_been_hit <- true
+
+let get_sprite note = note.sprite
 
 let calc_score note combo accuracy =
   note.base_score * combo
