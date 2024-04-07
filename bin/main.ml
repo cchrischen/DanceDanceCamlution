@@ -3,6 +3,7 @@ open Finalproject
 let width = 1280
 let height = 720
 let score = ref 0
+let combo = ref 0
 let valid_press = ref true
 
 (* delete later; here to confirm button presses work *)
@@ -57,7 +58,7 @@ let draw notes buttons =
          let points = collision |> Rectangle.width |> floor |> int_of_float in
          begin
            score := !score + points;
-           if points = 0 then valid_press := false
+           if points = 0 then valid_press := false else combo := !combo + 1
          end);
     if is_key_released key then begin
       valid_press := true;
@@ -91,6 +92,14 @@ let draw notes buttons =
     50 40 Color.black;
   draw_fps 5 5
 
+let draw_combo combo =
+  let open Raylib in
+  draw_text
+    (string_of_int !combo ^ "x")
+    (get_screen_width () - 125)
+    (get_screen_height () - 100)
+    40 Color.black
+
 let rec loop (pause, notes, buttons, music) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
@@ -104,6 +113,8 @@ let rec loop (pause, notes, buttons, music) =
       clear_background Color.raywhite;
 
       draw notes buttons;
+
+      draw_combo combo;
 
       end_drawing ();
 
