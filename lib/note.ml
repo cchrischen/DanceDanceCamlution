@@ -24,9 +24,8 @@ let create_note x y =
     time = 0;
     base_score = 10;
     has_been_hit = false;
-    speed = 10.;
+    speed = Constants.note_speed;
   }
-
 
 let update note =
   let sprite = note.sprite in

@@ -7,6 +7,13 @@ let score = ref 0
 (* delete later; here to confirm button presses work *)
 let counters = Array.make Constants.num_notes 0
 
+(**[buttons_y] is the y position of the top left of the buttons. Is screen width
+   / 2 + 80*)
+let buttons_y = 440.
+
+(* let time_travel_note_to_button = (buttons_y -. Constants.note_heigth) /.
+   Constants.note_speed /. float_of_int Constants.target_fps *)
+
 let spread_x_positions num_els el_width =
   let screen_width = Raylib.get_screen_width () |> float_of_int in
   let gap =
@@ -19,22 +26,16 @@ let spread_x_positions num_els el_width =
 let setup () =
   let open Raylib in
   init_window width height "Tile Game";
-  init_audio_device ();
 
-  let music = load_music_stream "data/country.mp3" in
-  play_music_stream music;
+  let music = Beatmap.Song.init "data/better-day.mp3" in
 
   let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
 
   let notes = List.map (fun x -> Note.create_note x 40.) x_pos in
-
-  let buttons_y = (get_screen_height () / 2) + 80 |> float_of_int in
   let buttons =
     List.map (fun x -> Rectangle.create x buttons_y 80. 80.) x_pos
   in
-
-  set_target_fps 60;
-
+  set_target_fps Constants.target_fps;
   (false, notes, buttons, music)
 
 let draw notes buttons =
@@ -83,21 +84,26 @@ let draw notes buttons =
     50 40 Color.black;
   draw_fps 5 5
 
-let rec loop (pause, notes, buttons, music) =
+let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
       let open Raylib in
-      update_music_stream music;
-
+      update_music_stream music.audio_source;
       let pause = if is_key_pressed Key.Space then not pause else pause in
-
+      let is_on_note_onset = Beatmap.Song.is_on_next_note music 0. in
       begin_drawing ();
       clear_background Color.raywhite;
 
       draw notes buttons;
 
       end_drawing ();
+      let _ =
+        if is_on_note_onset then
+          let _ = draw_text "Note detected" ((width / 2) - 50) 0 20 Color.red in
+          Beatmap.Song.inc_note music
+        else ()
+      in
 
       loop (pause, notes, buttons, music)
 
