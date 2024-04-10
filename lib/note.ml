@@ -39,7 +39,7 @@ let get_sprite note = note.sprite
 let has_been_hit note = note.has_been_hit
 
 let calc_score combo accuracy =
-  Constants.base_score * combo
+  Constants.base_score * (combo + 1)
   *
   match accuracy with
   | Perfect -> 3
