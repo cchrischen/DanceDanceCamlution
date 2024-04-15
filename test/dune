@@ -1,3 +1,5 @@
 (test
  (name test_finalproject)
- (libraries ounit2))
+ (libraries finalproject ounit2 qcheck raylib)
+ (deps
+  (glob_files *.txt)))
