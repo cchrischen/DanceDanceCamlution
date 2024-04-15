@@ -3,6 +3,8 @@ open Finalproject
 let width = 1280
 let height = 720
 let score = ref 0
+let combo = ref 0
+let valid_press = ref true
 
 (* delete later; here to confirm button presses work *)
 let counters = Array.make Constants.num_notes 0
@@ -38,11 +40,17 @@ let setup () =
   set_target_fps Constants.target_fps;
   (false, notes, buttons, music)
 
+let check_combo_break (note, break_combo) =
+  if break_combo then combo := 0;
+  note
+
 let draw notes buttons =
   let open Raylib in
-  let updated_notes = List.map Note.update notes in
+  let updated_notes = List.map check_combo_break (List.map Note.update notes) in
   let _ =
-    List.map (fun note -> draw_rectangle_rec note Color.black) updated_notes
+    List.map
+      (fun note -> draw_rectangle_rec (Note.get_sprite note) Color.black)
+      updated_notes
   in
   ();
 
@@ -52,9 +60,21 @@ let draw notes buttons =
   let handle_key_press note button key =
     (if is_key_down key then
        let () = draw_rectangle_rec button Color.red in
-       let collision = get_collision_rec note button in
-       score := !score + (collision |> Rectangle.width |> floor |> int_of_float));
-    if is_key_released key then
+       if !valid_press && not (Note.has_been_hit note) then
+         let collision = get_collision_rec (Note.get_sprite note) button in
+         let overlap =
+           (collision |> Rectangle.height)
+           /. (note |> Note.get_sprite |> Rectangle.height)
+         in
+         if overlap = 0. then valid_press := false
+         else begin
+           score :=
+             !score + (overlap |> Note.calc_accuracy |> Note.calc_score !combo);
+           combo := !combo + 1;
+           Note.hit note
+         end);
+    if is_key_released key then begin
+      valid_press := true;
       let idx_opt = List.find_index (fun x -> x = key) Constants.bindings in
       let idx =
         match idx_opt with
@@ -62,6 +82,7 @@ let draw notes buttons =
         | Some i -> i
       in
       counters.(idx) <- counters.(idx) + 1
+    end
   in
 
   let _ =
@@ -84,6 +105,16 @@ let draw notes buttons =
     50 40 Color.black;
   draw_fps 5 5
 
+
+let draw_combo combo =
+  let open Raylib in
+  draw_text
+    (string_of_int !combo ^ "x")
+    (get_screen_width () - 125)
+    (get_screen_height () - 100)
+    40
+    (if !combo = 0 then Color.red else Color.black)
+
 let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
@@ -96,6 +127,8 @@ let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
       clear_background Color.raywhite;
 
       draw notes buttons;
+
+      draw_combo combo;
 
       end_drawing ();
       let _ =

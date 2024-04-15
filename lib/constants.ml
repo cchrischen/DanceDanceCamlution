@@ -12,4 +12,7 @@ let note_speed = 10.
 let repeat_song = true
 
 let target_fps = 60
+
+let base_score = 10
+
 let bindings = [ Key.D; Key.F; Key.J; Key.K ]
