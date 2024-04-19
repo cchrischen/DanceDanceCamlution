@@ -68,8 +68,8 @@ module AddState (M : StateMachine) (S : State) : StateMachine = struct
   let render () =
     let curr_state =
       match !current_state with
-      | None -> raise_invalid_state current_state states
+      | None -> raise Empty_state_machine
       | Some s -> s
     in
-    if curr_state <> S.name then S.render () else M.render ()
+    if curr_state = S.name then S.render () else M.render ()
 end
