@@ -11,3 +11,6 @@ let make_list n =
 let map3 f lst1 lst2 lst3 =
   let combined = List.map2 (fun x y -> (x, y)) lst1 lst2 in
   List.map2 (fun (x, y) z -> f x y z) combined lst3
+
+let array_to_string f arr =
+  "[|" ^ Array.fold_left (fun acc x -> acc ^ f x) "" arr ^ "|]"
