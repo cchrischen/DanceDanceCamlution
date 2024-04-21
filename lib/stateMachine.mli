@@ -34,11 +34,12 @@ end
     transitions between them. It is one of the input signature and the output
     signature of the functor [AddState]. *)
 module type StateMachine = sig
-  val states : string array
-  (** [states] is all supported states in this state machine. *)
-
   val current_state : string option ref
   (** [current_state] is the current state of the state machine. *)
+
+  val get_states : unit -> string array
+  (** [get_states ()] is a an array of the supported states of the state
+      machine. *)
 
   val get_state : unit -> string option
   (** [get_state ()] is the current state of the state machine. This is [None]

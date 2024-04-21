@@ -20,8 +20,8 @@ module type State = sig
 end
 
 module type StateMachine = sig
-  val states : string array
   val current_state : string option ref
+  val get_states : unit -> string array
   val get_state : unit -> string option
   val set_state : string -> unit
   val init : unit -> unit
@@ -31,6 +31,7 @@ end
 
 module EmptyStateMachine : StateMachine = struct
   let states = [||]
+  let get_states () = Array.copy states
   let current_state = ref None
   let get_state () = !current_state
   let set_state state = raise_invalid_state (ref (Some state)) states
@@ -40,7 +41,8 @@ module EmptyStateMachine : StateMachine = struct
 end
 
 module AddState (M : StateMachine) (S : State) : StateMachine = struct
-  let states = Array.append M.states [| S.name |]
+  let states = Array.append (M.get_states ()) [| S.name |]
+  let get_states () = Array.copy states
 
   let current_state =
     let () =
@@ -68,7 +70,7 @@ module AddState (M : StateMachine) (S : State) : StateMachine = struct
   let render () =
     let curr_state =
       match !current_state with
-      | None -> raise Empty_state_machine
+      | None -> raise Empty_state_machine (* Should never reach here *)
       | Some s -> s
     in
     if curr_state = S.name then S.render () else M.render ()
