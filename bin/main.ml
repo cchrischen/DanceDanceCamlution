@@ -7,11 +7,17 @@ let combo = ref 0
 let valid_press = ref true
 let play_game = ref false
 let pause = ref false
-let fps = 60
 let button_frames = Sprite.create_sprites 80 160 6 4
 let button_frame_num = ref 0
 
 (* let counters = Array.make Constants.num_notes 0 *)
+
+(**[buttons_y] is the y position of the top left of the buttons. Is screen width
+   / 2 + 80*)
+let buttons_y = 440.
+
+(* let time_travel_note_to_button = (buttons_y -. Constants.note_heigth) /.
+   Constants.note_speed /. float_of_int Constants.target_fps *)
 
 let spread_x_positions num_els el_width =
   let screen_width = Raylib.get_screen_width () |> float_of_int in
@@ -49,23 +55,21 @@ let rec title_loop image =
 
 let setupGame () =
   let open Raylib in
+
   init_window width height "DanceDanceCamlution";
-  init_audio_device ();
-  let music = load_music_stream "data/music/newer_wave.mp3" in
-  play_music_stream music;
+  let music = Beatmap.Song.init "data/better-day.mp3" in
 
   let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
 
   let notes = List.map (fun x -> Note.create_note x 40.) x_pos in
 
   let buttons_y = get_screen_height () * 3 / 4 |> float_of_int in
+
   let buttons =
     List.map (fun x -> Rectangle.create x buttons_y 80. 40.) x_pos
   in
-
-  set_target_fps 60;
-
-  (pause, notes, buttons, music)
+  set_target_fps Constants.target_fps;
+  (false, notes, buttons, music)
 
 let check_combo_break (note, break_combo) =
   if break_combo then combo := 0;
@@ -143,6 +147,7 @@ let draw notes buttons =
     20 30 Color.lightgray;
   draw_fps 5 5
 
+
 let draw_background () =
   let open Raylib in
   clear_background (Color.create 70 70 90 255);
@@ -190,7 +195,7 @@ let draw_combo combo =
     40
     (if !combo = 0 then Color.red else Color.gray)
 
-let rec loop (pause, notes, buttons, music) =
+let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
@@ -200,12 +205,21 @@ let rec loop (pause, notes, buttons, music) =
         else !pause;
       if not !pause then (
         let open Raylib in
-        update_music_stream music;
+        update_music_stream music.audio_source;
+        let is_on_note_onset = Beatmap.Song.is_on_next_note music 0. in
         begin_drawing ();
         draw_background ();
         draw notes buttons;
 
-        draw_combo combo;
+      draw_combo combo;
+
+      end_drawing ();
+      let _ =
+        if is_on_note_onset then
+          let _ = draw_text "Note detected" ((width / 2) - 50) 0 20 Color.red in
+          Beatmap.Song.inc_note music
+        else ()
+      in
 
         end_drawing ();
 

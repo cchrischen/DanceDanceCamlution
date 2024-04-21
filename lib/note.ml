@@ -16,7 +16,7 @@ let create_note x y =
   {
     sprite = Rectangle.create x y Constants.note_width Constants.note_height;
     has_been_hit = false;
-    speed = 10.;
+    speed = Constants.note_speed;
   }
 
 let update note =
