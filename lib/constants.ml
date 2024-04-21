@@ -2,7 +2,8 @@ open Raylib
 
 let num_notes = 4
 let note_width = 80.
-let note_heigth = 80.
+let note_height = 40.
+
 
 (**[note_speed] is the number of pixels a note is moved horizontally every time
    a frame updates.*)
