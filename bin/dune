@@ -1,4 +1,4 @@
 (executable
  (public_name finalproject)
  (name main)
- (libraries raylib finalproject))
+ (libraries raylib finalproject states))
