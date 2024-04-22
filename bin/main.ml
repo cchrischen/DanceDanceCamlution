@@ -6,7 +6,6 @@ let score = ref 0
 let combo = ref 0
 let valid_press = ref true
 let play_game = ref false
-let pause = ref false
 let button_frames = Sprite.create_sprites 80 160 6 4
 let button_frame_num = ref 0
 
@@ -14,7 +13,7 @@ let button_frame_num = ref 0
 
 (**[buttons_y] is the y position of the top left of the buttons. Is screen width
    / 2 + 80*)
-let buttons_y = 440.
+(* let buttons_y = 440. *)
 
 (* let time_travel_note_to_button = (buttons_y -. Constants.note_heigth) /.
    Constants.note_speed /. float_of_int Constants.target_fps *)
@@ -30,7 +29,7 @@ let spread_x_positions num_els el_width =
 let setupTitle () =
   let open Raylib in
   init_window width height "Title Screen";
-  set_target_fps fps;
+  set_target_fps Constants.target_fps;
   let gif = load_image "data/ICU.gif" in
   let texture = load_texture_from_image gif in
   unload_image gif;
@@ -55,7 +54,6 @@ let rec title_loop image =
 
 let setupGame () =
   let open Raylib in
-
   init_window width height "DanceDanceCamlution";
   let music = Beatmap.Song.init "data/better-day.mp3" in
 
@@ -69,7 +67,7 @@ let setupGame () =
     List.map (fun x -> Rectangle.create x buttons_y 80. 40.) x_pos
   in
   set_target_fps Constants.target_fps;
-  (false, notes, buttons, music)
+  (play_game, notes, buttons, music)
 
 let check_combo_break (note, break_combo) =
   if break_combo then combo := 0;
@@ -147,7 +145,6 @@ let draw notes buttons =
     20 30 Color.lightgray;
   draw_fps 5 5
 
-
 let draw_background () =
   let open Raylib in
   clear_background (Color.create 70 70 90 255);
@@ -203,7 +200,7 @@ let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
         if Raylib.is_key_pressed Raylib.Key.Space && not !pause then true
         else if Raylib.is_key_pressed Raylib.Key.Space && !pause then false
         else !pause;
-      if not !pause then (
+      if !pause then (
         let open Raylib in
         update_music_stream music.audio_source;
         let is_on_note_onset = Beatmap.Song.is_on_next_note music 0. in
@@ -211,16 +208,16 @@ let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
         draw_background ();
         draw notes buttons;
 
-      draw_combo combo;
+        draw_combo combo;
 
-      end_drawing ();
-      let _ =
-        if is_on_note_onset then
-          let _ = draw_text "Note detected" ((width / 2) - 50) 0 20 Color.red in
-          Beatmap.Song.inc_note music
-        else ()
-      in
-
+        let _ =
+          if is_on_note_onset then
+            let _ =
+              draw_text "Note detected" ((width / 2) - 50) 0 20 Color.red
+            in
+            Beatmap.Song.inc_note music
+          else ()
+        in
         end_drawing ();
 
         loop (pause, notes, buttons, music))
