@@ -1,5 +1,9 @@
 let name = "title"
 let set_default = true
+
+let texture =
+  "/data/ICU.gif" |> Raylib.load_image |> Raylib.load_texture_from_image
+
 let init () = ()
 
 let update () =
@@ -9,4 +13,7 @@ let update () =
 let render () =
   let open Raylib in
   clear_background Color.raywhite;
-  draw_text "DDC" 190 200 75 Color.black
+  draw_text "Welcome to DanceDanceCamlution" 0 0 50 Color.black;
+  draw_text "Press Enter to Play, Space to Pause, or Exit Window to Quit" 90 100
+    30 Color.gold;
+  draw_texture texture 400 250 Color.white;

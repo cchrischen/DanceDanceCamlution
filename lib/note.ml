@@ -29,7 +29,7 @@ let update note =
     Rectangle.set_height note.sprite Constants.note_height;
     note.has_been_hit <- false
   end;
-  (note, !break_combo)
+  !break_combo
 
 let hit note =
   if not note.has_been_hit then Rectangle.set_height note.sprite 0.;

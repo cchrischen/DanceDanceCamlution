@@ -1,3 +1,5 @@
+open Finalproject
+
 let name = "pause"
 let set_default = false
 let init () = ()
@@ -8,4 +10,4 @@ let update () =
 
 let render () =
   let open Raylib in
-  draw_text "PAUSED" 190 200 50 Color.lightgray
+  draw_text "Paused" (Constants.width / 2) (Constants.height / 2) 40 Color.red
