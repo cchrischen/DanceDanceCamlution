@@ -73,7 +73,12 @@ let update () =
   let open Raylib in
   ignore (List.map check_combo_break (List.map Note.update notes));
   Raylib.update_music_stream music.audio_source;
-  if is_key_pressed Key.P then Some "pause" else None
+  let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
+  let dist = Utils.distance mouse_pos (60, (Constants.height - 60)) in
+  if is_key_pressed Key.P then Some "pause"
+  else if is_mouse_button_pressed MouseButton.Left && dist <= 50. then
+    Some "settings"
+  else None
 
 let draw_background () =
   let open Raylib in
@@ -136,6 +141,7 @@ let render () =
          draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
        notes);
   ignore (Utils.map3 handle_key_press notes buttons Constants.bindings);
+  draw_circle 60 (Constants.height - 60) 50. Color.gray;
   draw_text
     ("Score: " ^ string_of_int !score)
     ((get_screen_width () * 17 / 20)
