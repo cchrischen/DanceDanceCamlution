@@ -14,7 +14,7 @@ val create_note : float -> float -> t
     the optimal time for the player to hit it), and [base_score], the default
     score value of this note without combo applied. *)
 
-val update : t -> t * bool
+val update : t -> bool
 val hit : t -> unit
 val get_sprite : t -> Rectangle.t
 val has_been_hit : t -> bool
