@@ -16,4 +16,4 @@ let render () =
   draw_text "Welcome to DanceDanceCamlution" 0 0 50 Color.black;
   draw_text "Press Enter to Play, Space to Pause, or Exit Window to Quit" 90 100
     30 Color.gold;
-  draw_texture texture 400 250 Color.white;
+  draw_texture texture 400 250 Color.white

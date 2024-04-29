@@ -68,6 +68,7 @@ let handle_key_press note button key =
 let update () =
   let open Raylib in
   ignore (List.map check_combo_break (List.map Note.update notes));
+  Raylib.update_music_stream music.audio_source;
   if is_key_pressed Key.P then Some "pause" else None
 
 let draw_background () =
