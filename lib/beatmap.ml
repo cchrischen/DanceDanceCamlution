@@ -19,6 +19,9 @@ module Song = struct
     mutable next_note_index : int;
   }
 
+  let create_beatmap song_path =
+    Sys.command ("python lib/beatmap_python/generate_beatmap.py " ^ song_path)
+
   let init song_path =
     Raylib.init_audio_device ();
     let song = Raylib.load_music_stream song_path in

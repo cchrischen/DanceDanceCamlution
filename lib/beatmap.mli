@@ -12,6 +12,10 @@ module Song : sig
     mutable next_note_index : int;
   }
 
+  val create_beatmap : string -> int
+  (**[create_beatmap song_path] creates the beatmap from [song_path] in the same
+     directory as specified song. Returns exit code from terminal*)
+
   val init : string -> song
   (**[init song_path] is the [song] created from the [song_path], including the
      [Raylib.Music.t] music object and beatmap. Also initializes the audio
