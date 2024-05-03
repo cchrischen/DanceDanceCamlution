@@ -1,9 +1,6 @@
 import os
 import sys
 
-# python-packages directory
-import_dir = os.path.abspath('python-packages')
-sys.path.append(import_dir)
 
 from aubio import source, onset
 
