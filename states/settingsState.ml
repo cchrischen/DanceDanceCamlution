@@ -1,7 +1,7 @@
 open Finalproject
 
 let name = "settings"
-let set_default = true
+let set_default = false
 let init () = ()
 let is_menu_open = ref false
 let menu_width = 750
@@ -15,11 +15,25 @@ let update () =
   let open Raylib in
   if is_key_pressed Keybind.(get_keybind PAUSE) then Some "play" else None
 
+let draw_keybind_grid () =
+  (* let open Raylib in *)
+  let _ = Keybind.all_buttons () in ()
+  (* ignore
+    (List.mapi
+       (fun i key ->
+         let key_as_string =
+           key |> Key.to_int |> char_of_int |> String.make 1
+         in
+         let x_pos = i % 3
+         Raylib.draw_text key_as_string)
+       all_keys) *)
+
 let render () =
   let open Raylib in
   draw_rectangle (fst menu_nw_corner) (snd menu_nw_corner) menu_width
     menu_height Color.gray;
   draw_text "Settings"
-    ((Constants.width / 2) - 100)
+    ((Constants.width / 2) - 125)
     ((Constants.height / 2) - 200)
-    60 Color.black
+    60 Color.black;
+  draw_keybind_grid ()
