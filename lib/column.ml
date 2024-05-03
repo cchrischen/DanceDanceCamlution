@@ -1,13 +1,18 @@
 open Raylib
 open Note
-open Constants
 
 type t = Note.t list ref * Rectangle.t * float
 
-let get_notes (a, _, _) = !a
+let rec remove_from_list lst index =
+  match lst with
+  | [] -> []
+  | h :: t -> if index = 0 then t else h :: remove_from_list t (index - 1)
+
 let fst (a, _, _) = a
 let snd (_, a, _) = a
 let trd (_, _, a) = a
+let get_notes (a, _, _) = !a
+let get_button col = snd col
 
 let create (pos : float) : t =
   let y = get_screen_height () * 3 / 4 |> float_of_int in
@@ -34,11 +39,7 @@ let rec find_current_note (col : t) (index : int) =
   | [] -> -1
   | h :: t ->
       let collision = get_collision_rec (Note.get_sprite h) button in
-      if
-        (collision |> Rectangle.height)
-        /. (h |> Note.get_sprite |> Rectangle.height)
-        <> 0.
-      then index
+      if collision |> Rectangle.height <> 0. then index
       else find_current_note (ref t, button, trd col) (index + 1)
 
 let key_pressed (col : t) =
@@ -55,6 +56,17 @@ let key_pressed (col : t) =
     begin
       let hit = load_sound "data/sounds/hit_note.wav" in
       play_sound hit;
-      Note.hit note
+      Note.hit note;
+      fst col := remove_from_list (get_notes col) note_index
     end;
     overlap |> Note.calc_accuracy
+
+let rec check_remove_notes notes index =
+  match notes with
+  | [] -> -1
+  | h :: t ->
+      if Rectangle.y h > 720. then index else check_remove_notes t (index + 1)
+
+let remove_dead_notes (col : t) =
+  let index = check_remove_notes (List.map Note.get_sprite (get_notes col)) 0 in
+  if index = -1 then () else fst col := remove_from_list (get_notes col) index

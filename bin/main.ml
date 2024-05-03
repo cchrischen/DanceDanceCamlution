@@ -59,22 +59,38 @@ let setupGame () =
 
   let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
 
-  let notes = List.map (fun x -> Note.create_note x 40.) x_pos in
-
-  let buttons_y = get_screen_height () * 3 / 4 |> float_of_int in
-
-  let buttons =
-    List.map (fun x -> Rectangle.create x buttons_y 80. 40.) x_pos
-  in
+  let columns = List.map (fun x -> Column.create x) x_pos in
   set_target_fps Constants.target_fps;
-  (play_game, notes, buttons, music)
+  ( play_game,
+    columns,
+    music,
+    0,
+    [|
+      (20, 1);
+      (40, 2);
+      (60, 3);
+      (80, 1);
+      (120, 3);
+      (120, 2);
+      (140, 3);
+      (140, 0);
+      (160, 2);
+      (180, 0);
+      (200, 1);
+      (220, 2);
+      (240, 3);
+      (260, 1);
+      (280, 2);
+    |] )
 
 let check_combo_break (note, break_combo) =
   if break_combo then combo := 0;
   note
 
-let draw notes buttons =
+let draw col index =
   let open Raylib in
+  let notes = Column.get_notes col in
+  let button = Column.get_button col in
   let updated_notes = List.map check_combo_break (List.map Note.update notes) in
   let _ =
     List.map
@@ -83,15 +99,9 @@ let draw notes buttons =
       updated_notes
   in
   ();
+  draw_rectangle_rec button (Color.create 60 30 130 250);
 
-  let _ =
-    List.map
-      (fun key -> draw_rectangle_rec key (Color.create 60 30 130 250))
-      buttons
-  in
-  ();
-
-  let handle_key_press note button key =
+  let handle_key_press col key =
     if is_key_down key then begin
       draw_rectangle_rec button (Color.create 110 80 180 250);
       if !button_frame_num < Sprite.num_frames button_frames then begin
@@ -105,20 +115,14 @@ let draw notes buttons =
           (Rectangle.x button)
           (Rectangle.y button -. 120.);
 
-      if !valid_press && not (Note.has_been_hit note) then
-        let collision = get_collision_rec (Note.get_sprite note) button in
-        let overlap =
-          (collision |> Rectangle.height)
-          /. (note |> Note.get_sprite |> Rectangle.height)
-        in
-        if overlap = 0. then valid_press := false
+      if !valid_press then
+        let acc = Column.key_pressed col in
+        if acc = Miss then begin valid_press := false
+          (* combo := 0 *)
+        end
         else begin
-          let hit = load_sound "data/sounds/hit_note.wav" in
-          play_sound hit;
-          score :=
-            !score + (overlap |> Note.calc_accuracy |> Note.calc_score !combo);
-          combo := !combo + 1;
-          Note.hit note
+          score := !score + (acc |> Note.calc_score !combo);
+          combo := !combo + 1
         end
     end;
     if is_key_released key then begin
@@ -130,9 +134,7 @@ let draw notes buttons =
     end
   in
 
-  let _ =
-    Utils.map3 handle_key_press updated_notes buttons Constants.bindings
-  in
+  let _ = handle_key_press col (List.nth Constants.bindings index) in
 
   (* let _ = let x_positions = spread_x_positions Constants.num_notes 50. |>
      List.map int_of_float |> Array.of_list in let y_pos = (get_screen_height ()
@@ -192,7 +194,16 @@ let draw_combo combo =
     40
     (if !combo = 0 then Color.red else Color.gray)
 
-let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
+let drop_notes columns time beatmap =
+  for i = 0 to Array.length beatmap - 1 do
+    let note = beatmap.(i) in
+    if fst note <> -1 && time >= fst note then begin
+      Column.add_note (List.nth columns (snd note));
+      beatmap.(i) <- (-1, -1)
+    end
+  done
+
+let rec loop (pause, columns, (music : Beatmap.Song.song), time, beatmap) =
   match Raylib.window_should_close () with
   | true -> Raylib.close_window ()
   | false ->
@@ -206,8 +217,11 @@ let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
         let is_on_note_onset = Beatmap.Song.is_on_next_note music 0. in
         begin_drawing ();
         draw_background ();
-        draw notes buttons;
-
+        drop_notes columns time beatmap;
+        for i = 0 to 3 do
+          draw (List.nth columns i) i;
+          Column.remove_dead_notes (List.nth columns i)
+        done;
         draw_combo combo;
 
         let _ =
@@ -220,14 +234,14 @@ let rec loop (pause, notes, buttons, (music : Beatmap.Song.song)) =
         in
         end_drawing ();
 
-        loop (pause, notes, buttons, music))
+        loop (pause, columns, music, time + 1, beatmap))
       else
         let open Raylib in
         begin_drawing ();
         clear_background Color.raywhite;
         Raylib.draw_text "Paused" (width / 2) (height / 2) 40 Raylib.Color.red;
         end_drawing ();
-        loop (pause, notes, buttons, music)
+        loop (pause, columns, music, time, beatmap)
 
 let () =
   setupTitle () |> title_loop;
