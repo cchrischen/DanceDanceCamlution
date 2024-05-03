@@ -1,5 +1,9 @@
 open Finalproject
 
+type t = int
+
+let buffer = ref None
+let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
 let score = ref 0

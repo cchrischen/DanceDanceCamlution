@@ -12,8 +12,10 @@ let raise_invalid_state state states =
   raise (Invalid_transition exn)
 
 module type State = sig
+  type t
   val name : string
   val set_default : bool
+  val set_buffer : t -> unit
   val init : unit -> unit
   val update : unit -> string option
   val render : unit -> unit
