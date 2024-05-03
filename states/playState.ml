@@ -1,5 +1,9 @@
 open Finalproject
 
+type t = int
+
+let buffer = ref None
+let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
 let score = ref 0
@@ -131,4 +135,10 @@ let render () =
        (fun note ->
          draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
        notes);
-  ignore (Utils.map3 handle_key_press notes buttons Constants.bindings)
+  ignore (Utils.map3 handle_key_press notes buttons Constants.bindings);
+  draw_text
+    ("Score: " ^ string_of_int !score)
+    ((get_screen_width () * 17 / 20)
+    - (String.length (string_of_int !score) * (get_screen_width () / 200)))
+    20 30 Color.lightgray;
+  draw_fps 5 5

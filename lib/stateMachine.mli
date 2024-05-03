@@ -9,6 +9,9 @@ exception Empty_state_machine
 (** [State] is a state in a state machine. It is one of the input signatures for
     the functor [AddState]. *)
 module type State = sig
+  type t
+  (** [t] is the type of data that the State receives from other states. *)
+
   val name : string
   (** [name] is the name of the state. *)
 
@@ -16,6 +19,10 @@ module type State = sig
   (** [set_default] determines whether the state will override a StateMachine's
       current state when added to one. It will always be overrided if a
       StateMachine's [current_state] is [None]. *)
+
+  val set_buffer : t -> unit
+  (** [set_buffer data] sets the buffer to some data value. This buffer is used
+      to send data between states. *)
 
   val init : unit -> unit
   (** [init ()] initializes the proper graphics, textures, etc. necessary for
