@@ -5,8 +5,7 @@ type t = int
 let name = "pause"
 let set_default = false
 let init () = ()
-
-let buffer = ref None 
+let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 
 let update () =
