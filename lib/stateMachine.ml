@@ -13,6 +13,7 @@ let raise_invalid_state state states =
 
 module type State = sig
   type t
+
   val name : string
   val set_default : bool
   val set_buffer : t -> unit
@@ -37,7 +38,7 @@ module EmptyStateMachine : StateMachine = struct
   let current_state = ref None
   let get_state () = !current_state
   let set_state state = raise_invalid_state (ref (Some state)) states
-  let init () = raise Empty_state_machine
+  let init () = ()
   let update () = raise_invalid_state current_state states
   let render () = raise_invalid_state current_state states
 end

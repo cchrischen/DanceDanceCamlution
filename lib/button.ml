@@ -39,3 +39,10 @@ let draw button color =
       let x = fst center in
       let y = snd center in
       draw_circle x y (radius |> float_of_int) color
+
+let get_dims = function
+  | Rect { x; y; width; height } -> (x, y, width, height)
+  | Circle { center; radius } ->
+      let cx = fst center in
+      let cy = snd center in
+      (cx - radius, cy - radius, radius, radius)

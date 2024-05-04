@@ -14,3 +14,8 @@ val check_click : t -> bool
 
 val draw : t -> Raylib.Color.t -> unit
 (** [draw button color] draws [button] with color [color]. *)
+
+val get_dims : t -> int * int * int * int
+(** [get_dims button] returns a tuple where the first two coordinates represent
+    the sprite's north west corner and the other two coordinates represent the
+    width and height, respectively. *)
