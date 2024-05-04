@@ -74,7 +74,7 @@ let update () =
   ignore (List.map check_combo_break (List.map Note.update notes));
   Raylib.update_music_stream music.audio_source;
   let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
-  let dist = Utils.distance mouse_pos (60, (Constants.height - 60)) in
+  let dist = Utils.distance mouse_pos (60, Constants.height - 60) in
   if is_key_pressed Key.P then Some "pause"
   else if is_mouse_button_pressed MouseButton.Left && dist <= 50. then
     Some "settings"
