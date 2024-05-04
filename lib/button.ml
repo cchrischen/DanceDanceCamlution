@@ -25,3 +25,17 @@ let check_click button =
         Utils.distance center (mx, my) <= float_of_int radius
   end
   else false
+
+let draw button color =
+  let open Raylib in
+  match button with
+  | Rect { x; y; width; height } ->
+      let rect =
+        Rectangle.create (x |> float_of_int) (y |> float_of_int)
+          (width |> float_of_int) (height |> float_of_int)
+      in
+      draw_rectangle_rec rect color
+  | Circle { center; radius } ->
+      let x = fst center in
+      let y = snd center in
+      draw_circle x y (radius |> float_of_int) color

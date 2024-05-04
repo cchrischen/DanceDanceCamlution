@@ -11,3 +11,6 @@ val make_circle_button : int * int -> int -> t
 
 val check_click : t -> bool
 (** [check_click button] is whether the mouse has clicked within the button. *)
+
+val draw : t -> Raylib.Color.t -> unit
+(** [draw button color] draws [button] with color [color]. *)

@@ -12,6 +12,9 @@ let valid_press = ref true
 let button_frames = Sprite.create_sprites 80 160 6 4
 let button_frame_num = ref 0
 
+let settings_button =
+  ref (Button.make_circle_button (60, Constants.height - 60) 50)
+
 let spread_x_positions num_els el_width =
   let screen_width = Constants.width |> float_of_int in
   let gap = el_width in
@@ -73,11 +76,8 @@ let update () =
   let open Raylib in
   ignore (List.map check_combo_break (List.map Note.update notes));
   Raylib.update_music_stream music.audio_source;
-  let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
-  let dist = Utils.distance mouse_pos (60, Constants.height - 60) in
   if is_key_pressed Key.P then Some "pause"
-  else if is_mouse_button_pressed MouseButton.Left && dist <= 50. then
-    Some "settings"
+  else if Button.check_click !settings_button then Some "settings"
   else None
 
 let draw_background () =
@@ -141,7 +141,7 @@ let render () =
          draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
        notes);
   ignore (Utils.map3 handle_key_press notes buttons Constants.bindings);
-  draw_circle 60 (Constants.height - 60) 50. Color.gray;
+  Button.draw !settings_button Color.gray;
   draw_text
     ("Score: " ^ string_of_int !score)
     ((get_screen_width () * 17 / 20)
