@@ -2,6 +2,8 @@ open Raylib
 
 type t = Rectangle.t array
 
+let to_array (sprite : t) : Rectangle.t array = sprite
+
 let create_sprites (width : int) (height : int) (frames : int)
     (frames_per_row : int) : t =
   let rec add_frames i acc =

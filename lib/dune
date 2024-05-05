@@ -1,6 +1,8 @@
 (library
  (inline_tests)
  (name finalproject)
+ (instrumentation
+  (backend bisect_ppx))
  (libraries raylib batteries)
  (preprocess
   (pps ppx_inline_test)))
