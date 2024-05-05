@@ -1,6 +1,6 @@
 (library
  (inline_tests)
  (name finalproject)
- (libraries raylib batteries)
+ (libraries raylib batteries csv)
  (preprocess
   (pps ppx_inline_test)))
