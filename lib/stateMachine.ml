@@ -60,7 +60,9 @@ module AddState (M : StateMachine) (S : State) : StateMachine = struct
 
   let init () =
     S.init ();
-    try M.init () with Failure _ -> ()
+    try M.init () with
+    | Failure _ -> ()
+    | Empty_state_machine -> ()
 
   let update () =
     let curr_state =
