@@ -5,13 +5,13 @@ type t = int
 let name = "pause"
 let set_default = false
 let init () = ()
-
-let buffer = ref None 
+let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 
 let update () =
   let open Raylib in
-  if is_key_pressed Key.P then Some "play" else None
+  if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "play"
+  else None
 
 let render () =
   let open Raylib in

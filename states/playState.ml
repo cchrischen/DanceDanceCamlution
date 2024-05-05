@@ -24,6 +24,9 @@ let key_binding_map =
   in
   add_keys 1 Constants.bindings
 
+let settings_button =
+  ref (Button.make_circle_button (60, Constants.height - 60) 50)
+
 let spread_x_positions num_els el_width =
   let screen_width = Constants.width |> float_of_int in
   let gap = el_width in
@@ -157,7 +160,11 @@ let update () =
   let open Raylib in
   ignore (List.map check_combo_break (List.map Note.update notes));
   Raylib.update_music_stream music.audio_source;
-  if is_key_pressed Key.P then Some "pause" else None
+  let mx = get_mouse_x () in
+  let my = get_mouse_y () in
+  if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
+  else if Button.check_click (mx, my) !settings_button then Some "settings"
+  else None
 
 let draw_background () =
   let open Raylib in
@@ -235,6 +242,16 @@ let render () =
        (fun note ->
          draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
        notes);
-  ignore (Utils.map3 handle_key_press notes buttons Constants.bindings);
+  let keys_buttons = Keybind.play_keybinds () in
+  let raylib_key_buttons =
+    List.map (fun key -> Keybind.get_keybind key) keys_buttons
+  in
+  ignore (Utils.map3 handle_key_press notes buttons raylib_key_buttons);
+  Button.draw !settings_button Color.gray;
+  draw_text
+    ("Score: " ^ string_of_int !score)
+    ((get_screen_width () * 17 / 20)
+    - (String.length (string_of_int !score) * (get_screen_width () / 200)))
+    20 30 Color.lightgray;
   draw_key_counter_text ();
   draw_fps 5 5

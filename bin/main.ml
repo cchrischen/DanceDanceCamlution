@@ -2,7 +2,8 @@ open Finalproject
 open States
 module SM1 = StateMachine.AddState (StateMachine.EmptyStateMachine) (PlayState)
 module SM2 = StateMachine.AddState (SM1) (PauseState)
-module SM = StateMachine.AddState (SM2) (TitleState)
+module SM3 = StateMachine.AddState (SM2) (TitleState)
+module SM = StateMachine.AddState (SM3) (SettingsState)
 
 let init () =
   let open Raylib in
