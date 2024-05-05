@@ -32,4 +32,6 @@ module Song : sig
   (**[inc_note s] increments the [s.next_note_index].*)
 
   val get_index : song -> int
+  (**[get_index s] returns [s.next_note_index].*)
+  
 end
