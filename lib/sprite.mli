@@ -1,3 +1,4 @@
+open Raylib
 type t
 (** [t] is the type of a Sprite which is a tuple of the frame array and the
     raylib texture. *)
@@ -30,3 +31,7 @@ val texture : t -> Raylib.Texture2D.t
 
 val sprite_sheet : t -> Raylib.Rectangle.t array
 (** [sprite_sheet sprite] returns the array of frames given sprite [sprite].*)
+
+val to_array : t -> Rectangle.t array
+(** [to_array sprite] returns the array of Rectangles embedded in [sprite].*)
+

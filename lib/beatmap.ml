@@ -44,4 +44,5 @@ module Song = struct
       false
 
   let inc_note (s : song) : unit = s.next_note_index <- s.next_note_index + 1
+  let get_index (s : song) = s.next_note_index
 end

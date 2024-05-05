@@ -23,9 +23,8 @@ let update note =
   let break_combo = ref false in
   let sprite = note.sprite in
   Rectangle.(set_y sprite (y sprite +. note.speed));
-  if Rectangle.y sprite > ((get_screen_height () * 3 / 4) + 50 |> float_of_int)
-  then begin
-    if not note.has_been_hit then break_combo := true
+  if Rectangle.y sprite > (Constants.height |> float_of_int) then begin
+     if not note.has_been_hit then break_combo := true
   end;
   !break_combo
 
@@ -35,6 +34,7 @@ let hit note =
 
 let get_sprite note = note.sprite
 let has_been_hit note = note.has_been_hit
+let get_speed note = note.speed
 
 let calc_score combo accuracy =
   Constants.base_score * (combo + 1)
