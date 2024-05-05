@@ -22,7 +22,7 @@ let key_binding_map =
         Hashtbl.add empty key ("K" ^ string_of_int acc);
         add_keys (acc + 1) t
   in
-  add_keys 1 Constants.bindings
+  add_keys 1 (Keybind.play_keybinds ())
 
 let settings_button =
   ref (Button.make_circle_button (60, Constants.height - 60) 50)
@@ -89,7 +89,7 @@ let handle_key_press note button key =
   let counter_frames = Hashtbl.find !sprite_map "key_counter" in
   let button_frames = Hashtbl.find !sprite_map "button_press" in
   if is_key_down key then begin
-    (match Hashtbl.find key_binding_map key with
+    (match Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key) with
     | "K1" ->
         Sprite.draw_sprite counter_frames 1
           (float_of_int (Constants.width - 80))
@@ -140,7 +140,7 @@ let handle_key_press note button key =
     button_frame_num := 0
   end;
   if is_key_pressed key then begin
-    match Hashtbl.find key_binding_map key with
+    match Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key) with
     | "K1" -> counter_array.(0) <- counter_array.(0) + 1
     | "K2" -> counter_array.(1) <- counter_array.(1) + 1
     | "K3" -> counter_array.(2) <- counter_array.(2) + 1
@@ -248,10 +248,5 @@ let render () =
   in
   ignore (Utils.map3 handle_key_press notes buttons raylib_key_buttons);
   Button.draw !settings_button Color.gray;
-  draw_text
-    ("Score: " ^ string_of_int !score)
-    ((get_screen_width () * 17 / 20)
-    - (String.length (string_of_int !score) * (get_screen_width () / 200)))
-    20 30 Color.lightgray;
   draw_key_counter_text ();
   draw_fps 5 5
