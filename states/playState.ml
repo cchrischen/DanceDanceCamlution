@@ -47,15 +47,36 @@ let y_pos =
   in
   spread_y_positions Constants.num_notes
 
-let notes =
-  let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
-  List.map (fun x -> Note.create_note x 40.) x_pos
+(* let notes = let x_pos = spread_x_positions Constants.num_notes
+   Constants.note_width in List.map (fun x -> Note.create_note x 40.) x_pos
 
-let buttons =
-  let x_pos = spread_x_positions Constants.num_notes Constants.note_width in
-  let buttons_y = Constants.height * 3 / 4 |> float_of_int in
-  List.map (fun x -> Raylib.Rectangle.create x buttons_y 80. 40.) x_pos
+   let buttons = let x_pos = spread_x_positions Constants.num_notes
+   Constants.note_width in let buttons_y = Constants.height * 3 / 4 |>
+   float_of_int in List.map (fun x -> Raylib.Rectangle.create x buttons_y 80.
+   40.) x_pos *)
+let x_pos = spread_x_positions Constants.num_notes Constants.note_width
+let columns = List.map (fun x -> Column.create x) x_pos
 
+let beatmap =
+  [|
+    (20, 1);
+    (40, 2);
+    (60, 3);
+    (80, 1);
+    (120, 3);
+    (120, 2);
+    (140, 3);
+    (140, 0);
+    (160, 2);
+    (180, 0);
+    (200, 1);
+    (220, 2);
+    (240, 3);
+    (260, 1);
+    (280, 2);
+  |]
+
+let time = ref 0
 let music = Beatmap.Song.init "data/music/better-day.mp3"
 
 let init () =
@@ -84,8 +105,9 @@ let draw_key_counter_text () =
            20 Raylib.Color.white)
        (Utils.make_list 4))
 
-let handle_key_press note button key =
+let handle_key_press col key =
   let open Raylib in
+  let button = Column.get_button col in
   let counter_frames = Hashtbl.find !sprite_map "key_counter" in
   let button_frames = Hashtbl.find !sprite_map "button_press" in
   if is_key_down key then begin
@@ -118,21 +140,16 @@ let handle_key_press note button key =
       Sprite.draw_sprite button_frames 13 (Rectangle.x button)
         (Rectangle.y button -. 120.);
 
-    if !valid_press && not (Note.has_been_hit note) then
-      let collision = get_collision_rec (Note.get_sprite note) button in
-      let overlap =
-        (collision |> Rectangle.height)
-        /. (note |> Note.get_sprite |> Rectangle.height)
-      in
-      if overlap = 0. then (
+    if !valid_press then
+      let acc = Column.key_pressed col in
+      if acc = Miss then begin
         valid_press := false;
-        play_sound (Hashtbl.find sound_map "hit_sound"))
+        play_sound (Hashtbl.find sound_map "hit_sound") (* combo := 0 *)
+      end
       else begin
-        play_sound (Hashtbl.find sound_map "hit_note");
-        score :=
-          !score + (overlap |> Note.calc_accuracy |> Note.calc_score !combo);
+        score := !score + (acc |> Note.calc_score !combo);
         combo := !combo + 1;
-        Note.hit note
+        play_sound (Hashtbl.find sound_map "hit_note")
       end
   end;
   if is_key_released key then begin
@@ -156,9 +173,23 @@ let draw_key_counters () =
        (fun y -> Sprite.draw_sprite counter_frames 0 (float_of_int x_pos) y)
        y_pos)
 
+let drop_notes columns time beatmap =
+  for i = 0 to Array.length beatmap - 1 do
+    let note = beatmap.(i) in
+    if fst note <> -1 && time >= fst note then begin
+      Column.add_note (List.nth columns (snd note));
+      beatmap.(i) <- (-1, -1)
+    end
+  done
+
 let update () =
   let open Raylib in
-  ignore (List.map check_combo_break (List.map Note.update notes));
+  ignore
+    (List.map
+       (List.map check_combo_break)
+       (List.map (List.map Note.update) (List.map Column.get_notes columns)));
+  drop_notes columns !time beatmap;
+  time := !time + 1;
   Raylib.update_music_stream music.audio_source;
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
@@ -227,16 +258,18 @@ let draw_combo_and_score () =
     - (String.length (string_of_int !score) * (get_screen_width () / 200)))
     20 40 Color.lightgray
 
-let render () =
+let render_col col index =
   let open Raylib in
-  clear_background Constants.background_color;
-  draw_background ();
-  draw_combo_and_score ();
-  draw_key_counters ();
-  ignore
-    (List.map
-       (fun key -> draw_rectangle_rec key Constants.button_color)
-       buttons);
+  let notes = Column.get_notes col in
+  let button = Column.get_button col in
+  let _ = draw_rectangle_rec button Constants.button_color in
+  let _ =
+    List.map
+      (fun note ->
+        draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
+      notes
+  in
+  ();
   ignore
     (List.map
        (fun note ->
@@ -246,7 +279,18 @@ let render () =
   let raylib_key_buttons =
     List.map (fun key -> Keybind.get_keybind key) keys_buttons
   in
-  ignore (Utils.map3 handle_key_press notes buttons raylib_key_buttons);
+  ignore (handle_key_press col (List.nth raylib_key_buttons index))
+
+let render () =
+  let open Raylib in
+  clear_background Constants.background_color;
+  draw_background ();
+  draw_combo_and_score ();
+  draw_key_counters ();
+  for i = 0 to 3 do
+    render_col (List.nth columns i) i;
+    Column.remove_dead_notes (List.nth columns i)
+  done;
   Button.draw !settings_button Color.gray;
   draw_key_counter_text ();
   draw_fps 5 5

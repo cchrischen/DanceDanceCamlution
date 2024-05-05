@@ -6,9 +6,9 @@ let num_notes = 4
 let note_width = 80.
 let note_height = 40.
 
-(**[note_speed] is the number of pixels a note is moved horizontally every time
-   a frame updates.*)
-let note_speed = 10.
+(**[note_speed] is the number of pixels a note is moved vertically every time a
+   frame updates.*)
+let note_speed = 8.
 
 (**[repeat_song] is whether the song repeats once it has ended.*)
 let repeat_song = true
