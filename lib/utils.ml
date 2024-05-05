@@ -14,3 +14,8 @@ let map3 f lst1 lst2 lst3 =
 
 let array_to_string f arr =
   "[|" ^ Array.fold_left (fun acc x -> acc ^ f x) "" arr ^ "|]"
+
+let distance (x1, y1) (x2, y2) =
+  let dx = x1 - x2 in
+  let dy = y1 - y2 in
+  (dx * dx) + (dy * dy) |> float_of_int |> sqrt

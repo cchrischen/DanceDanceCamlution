@@ -3,6 +3,6 @@
  (name finalproject)
  (instrumentation
   (backend bisect_ppx))
- (libraries raylib batteries)
+ (libraries raylib batteries csv)
  (preprocess
   (pps ppx_inline_test)))
