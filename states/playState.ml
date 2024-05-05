@@ -76,8 +76,10 @@ let update () =
   let open Raylib in
   ignore (List.map check_combo_break (List.map Note.update notes));
   Raylib.update_music_stream music.audio_source;
-  if is_key_pressed Key.P then Some "pause"
-  else if Button.check_click !settings_button then Some "settings"
+  let mx = get_mouse_x () in
+  let my = get_mouse_y () in
+  if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
+  else if Button.check_click (mx, my) !settings_button then Some "settings"
   else None
 
 let draw_background () =
@@ -140,7 +142,11 @@ let render () =
        (fun note ->
          draw_rectangle_rec (Note.get_sprite note) Constants.note_color)
        notes);
-  ignore (Utils.map3 handle_key_press notes buttons Constants.bindings);
+  let keys_buttons = Keybind.play_keybinds () in
+  let raylib_key_buttons =
+    List.map (fun key -> Keybind.get_keybind key) keys_buttons
+  in
+  ignore (Utils.map3 handle_key_press notes buttons raylib_key_buttons);
   Button.draw !settings_button Color.gray;
   draw_text
     ("Score: " ^ string_of_int !score)

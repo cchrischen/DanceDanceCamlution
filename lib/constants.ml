@@ -20,4 +20,3 @@ let note_color = Color.create 200 120 20 255
 let button_color = Color.create 60 30 130 250
 let holding_button_color = Color.create 110 80 180 250
 let dim_background_color = Color.create 0 0 0 100
-let bindings = [ Key.D; Key.F; Key.J; Key.K ]

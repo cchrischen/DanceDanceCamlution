@@ -10,7 +10,6 @@ let is_menu_open = ref false
 let menu_width = 750
 let menu_height = 500
 let keybind_buttons = ref []
-let select_key_modal = ref false
 
 let init () =
   let locations =
@@ -34,8 +33,35 @@ let menu_nw_corner =
   ( (Constants.width / 2) - (menu_width / 2),
     (Constants.height / 2) - (menu_height / 2) )
 
+let waiting = ref (false, Keybind.BUTTON1, Raylib.Key.Null)
+
+let handle_click index =
+  let open Raylib in
+  let all_keybinds = Keybind.all_keybinds () in
+  let key = get_key_pressed () in
+  let keyfind = List.nth all_keybinds index in
+  waiting := (true, keyfind, key)
+
 let update () =
-  if Button.check_click !settings_button then Some "play" else None
+  let open Raylib in
+  let is_waiting, button, _ = !waiting in
+  if is_waiting then begin
+    let k = get_key_pressed () in
+    if k <> Key.Null then begin
+      Keybind.set_keybind button k;
+      waiting := (false, button, k)
+    end;
+    None
+  end
+  else begin
+    let mx = get_mouse_x () in
+    let my = get_mouse_y () in
+    List.iteri
+      (fun i button ->
+        if Button.check_click (mx, my) button then handle_click i)
+      !keybind_buttons;
+    if Button.check_click (mx, my) !settings_button then Some "play" else None
+  end
 
 let draw_keybind_grid () =
   let open Raylib in
@@ -48,7 +74,8 @@ let draw_keybind_grid () =
          let name, key = Keybind.to_string key in
          let button = List.nth !keybind_buttons i in
          let x, y, _, _ = Button.get_dims button in
-         draw_text name (x - 150) (y + 10) 30 Color.black)
+         draw_text name (x - 150) (y + 10) 30 Color.black;
+         draw_text key (x + 15) (y + 10) 30 Color.black)
        all_keys)
 
 let render () =
