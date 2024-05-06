@@ -8,7 +8,8 @@ let initialize_sprite (file : string) =
   unload_image image;
   texture
 
-let to_array (sprite : t) : Rectangle.t array = sprite
+let to_array (sprite_shape : Rectangle.t array) : Rectangle.t array =
+  sprite_shape
 
 let create_sprites (width : int) (height : int) (frames : int)
     (frames_per_row : int) =
@@ -25,6 +26,10 @@ let create_sprites (width : int) (height : int) (frames : int)
   in
   let sprites = add_frames 0 [||] in
   sprites
+
+let generate_sprite (width : int) (height : int) (frames : int)
+    (frames_per_row : int) (file : string) : t =
+  (create_sprites width height frames frames_per_row, initialize_sprite file)
 
 let draw_sprite (sprite : t) (frame_num : int) (x : float) (y : float) : unit =
   let sprites, sprite_texture = sprite in

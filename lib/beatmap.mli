@@ -2,8 +2,6 @@ val read_beatmap_txt : string -> float array
 (**[read_beatmap_txt path] is an array containing the onset - start time of each
    note in a song- of each note as declared in the beatmap file in [path].*)
 
-val print_float_list : float list -> unit
-
 (**[Song] is responsible for the playing of a song and tracking of the time*)
 module Song : sig
   type song = {
@@ -33,5 +31,4 @@ module Song : sig
 
   val get_index : song -> int
   (**[get_index s] returns [s.next_note_index].*)
-  
 end
