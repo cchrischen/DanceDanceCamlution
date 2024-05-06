@@ -2,8 +2,10 @@ open Batteries
 
 let read_beatmap_txt path =
   let file_lines = File.lines_of path in
-  Array.of_list
-    (List.rev (Enum.fold (fun acc x -> float_of_string x :: acc) [] file_lines))
+  let beatmap_lst =
+    List.rev (Enum.fold (fun acc x -> float_of_string x :: acc) [] file_lines)
+  in
+  Array.of_list (List.filteri (fun i _ -> i mod Constants.diff = 0) beatmap_lst)
 
 let rec print_float_list = function
   | [] -> print_endline ""
