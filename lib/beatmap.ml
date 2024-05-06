@@ -20,10 +20,15 @@ module Song = struct
   }
 
   let create_beatmap song_path =
-    Sys.command ("python lib/beatmap_python/generate_beatmap.py " ^ song_path)
+    if
+      not
+        (Sys.file_exists
+           (String.sub song_path 0 (String.length song_path - 3) ^ "beatmap.txt"))
+    then
+      Sys.command ("python lib/beatmap_python/generate_beatmap.py " ^ song_path)
+    else 0
 
   let init song_path =
-    Raylib.init_audio_device ();
     let song = Raylib.load_music_stream song_path in
     Raylib.play_music_stream song;
     let beatmap_path =

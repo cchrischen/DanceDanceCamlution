@@ -1,8 +1,8 @@
 open Finalproject
 
-type t = int
+type t = string
 
-let buffer = ref None
+let buffer = ref (Some "data/music/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
@@ -77,9 +77,10 @@ let beatmap =
   |]
 
 let time = ref 0
-let music = Beatmap.Song.init "data/music/better-day.mp3"
+let music = ref None
 
 let init () =
+  music := Some (Beatmap.Song.init (Option.get !buffer));
   sprite_map := Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
   Hashtbl.add sound_map "hit_sound"
     (Raylib.load_sound "data/sounds/hit_sound.wav");
@@ -190,7 +191,7 @@ let update () =
        (List.map (List.map Note.update) (List.map Column.get_notes columns)));
   drop_notes columns !time beatmap;
   time := !time + 1;
-  Raylib.update_music_stream music.audio_source;
+  Raylib.update_music_stream (Option.get !music).audio_source;
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
   if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"

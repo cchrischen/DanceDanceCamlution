@@ -27,7 +27,7 @@ let update () =
     Raylib.stop_sound (Hashtbl.find sound_map "title_music");
     Raylib.play_sound (Hashtbl.find sound_map "start_game");
     Raylib.wait_time 0.25;
-    Some "play")
+    Some "musicSelect")
   else None
 
 let play_button_logic (mouse_x : int) (mouse_y : int)
