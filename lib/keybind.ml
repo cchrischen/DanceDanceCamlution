@@ -33,7 +33,8 @@ let raylib_to_keybind raylib_key =
   if raylib_key = !button1 then BUTTON1
   else if raylib_key = !button2 then BUTTON2
   else if raylib_key = !button3 then BUTTON3
-  else BUTTON4
+  else if raylib_key = !button4 then BUTTON4
+  else PAUSE
 
 let set_keybind keybind button =
   let key = match_keybind keybind in

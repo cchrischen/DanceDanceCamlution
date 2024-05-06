@@ -2,4 +2,4 @@
  (name test_finalproject)
  (libraries finalproject ounit2 qcheck raylib)
  (deps
-  (glob_files *.txt)))
+  (glob_files *.mp3)))
