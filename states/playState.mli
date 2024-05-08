@@ -1,4 +1,4 @@
-type t = int
+type t = string
 (** [t] is the type of data another state can send to the play state. *)
 
 val name : string
