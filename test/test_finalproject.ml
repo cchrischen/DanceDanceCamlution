@@ -274,24 +274,9 @@ module type SongT = sig
   }
 
   val create_beatmap : string -> int
-  (**[create_beatmap song_path] creates the beatmap from [song_path] in the same
-     directory as specified song. Returns exit code from terminal*)
-
   val init : string -> song
-  (**[init song_path] is the [song] created from the [song_path], including the
-     [Raylib.Music.t] music object and beatmap. Also initializes the audio
-     device and starts the playing of the song in [song_path]. Note that
-     currently, [init song_path] requires the beatmap file and the mp3 file to
-     be in the same directory. *)
-
   val is_on_next_note : song -> float -> bool
-  (**[is_on_next_note s offset] checks whether the current time in the song
-     minus [offset] is at the onset of the [s.next_note_index] note in
-     [s.beatmap].Is [false] if [s.next_note_index] is >= length of [s.beatmap] *)
-
   val inc_note : song -> unit
-  (**[inc_note s] increments the [s.next_note_index].*)
-
   val get_index : song -> int
 end
 
@@ -348,146 +333,160 @@ let sprite_tests =
                 (generate_sprite 10 10 10 5 "test/titlescreen_test.png")) );
        ]
 
-module ExampleState : State = struct
-  type t = int
+module EmptySM = EmptyStateMachine ()
 
-  let name = "ex"
-  let set_default = false
-  let init () = ()
-  let update () = Some "ex2"
-  let render () = ()
-  let buffer = ref None
-  let set_buffer (t : t) = buffer := Some t
-  let set_default = true
-  let score = ref 0
-  let combo = ref 0
-  let valid_press = ref true
-  let button_frame_num = ref 0
-  let spread_x_positions num_els el_width = ()
-  let notes = ()
-  let buttons = ()
-  let init () = ()
-  let check_combo_break break_combo = ()
-  let handle_key_press note button key = ()
-  let draw_background () = ()
-  let draw_combo () = ()
-end
-
-module ExampleDummyState : State = struct
-  type t = int
-
-  let name = "ex"
-  let set_default = false
-  let init () = ()
-  let update () = Some "ex2"
-  let render () = ()
-  let buffer = ref None
-  let set_buffer (t : t) = buffer := Some t
-  let set_default = true
-  let score = ref 0
-  let combo = ref 0
-  let valid_press = ref true
-  let button_frame_num = ref 0
-  let spread_x_positions num_els el_width = ()
-  let notes = ()
-  let buttons = ()
-  let init () = ()
-  let check_combo_break break_combo = ()
-  let handle_key_press note button key = ()
-  let draw_background () = ()
-  let draw_combo () = ()
-end
-
-let state_machine_tests =
-  "test suite for sprites module "
+let empty_statemachine_tests =
+  "test suite for empty state machine"
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
-         ( "creating a sprite array - empty" >:: fun _ ->
-           assert_equal [||] (to_array (create_sprites 10 10 0 5)) );
-         ( "frame rate check" >:: fun _ ->
-           assert_equal 10
-             (num_frames
-                (generate_sprite 10 10 10 5 "test/titlescreen_test.png")) );
+         ( "current state of an empty state machine is none" >:: fun _ ->
+           assert_equal None !EmptySM.current_state );
+         ( "getting state of an empty state machine is same as current state"
+         >:: fun _ -> assert_equal None (EmptySM.get_state ()) );
+         ( "the list of states of an empty state machine is the empty array"
+         >:: fun _ -> assert_equal [||] (EmptySM.get_states ()) );
+         ( "attempting to transition state of an empty state machine should \
+            raise an error"
+         >:: fun _ ->
+           assert_bool ""
+             (try
+                EmptySM.set_state "a";
+                false
+              with Invalid_transition _ -> true) );
+         ( "updating an empty state machine should raise an error" >:: fun _ ->
+           assert_bool ""
+             (try
+                let _ = EmptySM.update () in
+                false
+              with Invalid_transition _ -> true) );
+         ( "rendering an empty state machine should raise an error" >:: fun _ ->
+           assert_bool ""
+             (try
+                EmptySM.render ();
+                false
+              with Invalid_transition _ -> true) );
+         ( "init should not raise an error" >:: fun _ ->
+           assert_bool ""
+             (EmptySM.init ();
+              true) );
        ]
 
-module ExState : State = struct
+module State1 : State with type t = int = struct
   type t = int
 
-  let name = "shubMap"
+  let buffer = ref None
+  let name = "State 1"
+  let set_default = false
+  let set_buffer d = buffer := Some d
+  let init () = ()
+  let update () = Some "State 2"
+  let render () = ()
+end
+
+module State2 : State = struct
+  type t = int
+
+  let buffer = ref None
+  let name = "State 2"
+  let set_default = true
+  let init () = ()
+  let set_buffer d = buffer := Some d
+  let update () = Some "State 3"
+  let render () = ()
+end
+
+module State3 : State = struct
+  type t = int
+
+  let buffer = ref None
+  let name = "State 3"
   let set_default = false
   let init () = ()
-  let update () = Some "xie"
+  let set_buffer d = buffer := Some d
+  let update () = Some "State 1"
   let render () = ()
-  let buffer = ref None
-  let set_buffer (t : t) = buffer := Some t
-  let set_default = true
-  let score = ref 0
-  let combo = ref 0
-  let valid_press = ref true
-  let button_frame_num = ref 0
-  let spread_x_positions num_els el_width = ()
-  let notes = ()
-  let buttons = ()
-  let init () = ()
-  let check_combo_break break_combo = ()
-  let handle_key_press note button key = ()
-  let draw_background () = ()
-  let draw_combo () = ()
 end
 
-module StateMachineTestMod = AddState (EmptyStateMachine) (ExampleState)
+module OneStateSM : StateMachine = AddState (EmptyStateMachine ()) (State1)
+module OneStateSMCopy : StateMachine = AddState (EmptyStateMachine ()) (State1)
+module TwoStateSM : StateMachine = AddState (OneStateSM) (State2)
 
-module StateMachineTestModDummy =
-  AddState (EmptyStateMachine) (ExampleDummyState)
+module TwoStateSMCopy : StateMachine =
+  AddState (AddState (EmptyStateMachine ()) (State1)) (State2)
 
-module StateMachineTestModDouble = AddState (StateMachineTestModDummy) (ExState)
+module ThreeStateSM : StateMachine = AddState (TwoStateSM) (State3)
 
-module StateMachineTest (S : StateMachine) = struct
-  let tests =
-    [
-      "test suite for state machine "
-      >::: [
-             ("a trivial test" >:: fun _ -> assert_equal 0 0);
-             ( "test state array" >:: fun _ ->
-               assert_equal [| "ex" |] (S.get_states ()) );
-             ( "test current state - single" >:: fun _ ->
-               match S.get_state () with
-               | None -> print_endline "NONE"
-               | Some s ->
-                   print_endline (s ^ "\n\n\n");
-                   assert_equal (Some "ex") (S.get_state ()) );
-             ( "test state array" >:: fun _ ->
-               assert_equal (Some "main") (S.get_state (S.set_state "main")) );
-           ];
-    ]
-end
+let one_state_state_machine_tests =
+  "test suite for a state machine with one state"
+  >::: [
+         ( "the current state should be the state of the added state even when \
+            set default is set to false"
+         >:: fun _ ->
+           assert_equal (Some "State 1") (OneStateSMCopy.get_state ()) );
+         ( "get state should return the current state" >:: fun _ ->
+           assert_equal (Some "State 1") (OneStateSMCopy.get_state ()) );
+         ( "setting the state and rendering to an invalid state should raise \
+            an error"
+         >:: fun _ ->
+           assert_bool ""
+             (try
+                OneStateSMCopy.set_state "State 2";
+                OneStateSMCopy.render ();
+                false
+              with Invalid_transition _ -> true) );
+         ( "the states array should only contain the name of the state that \
+            was added"
+         >:: fun _ ->
+           assert_equal [| "State 1" |] (OneStateSMCopy.get_states ()) );
+         ( "init should not raise an error" >:: fun _ ->
+           assert_bool ""
+             (OneStateSMCopy.init ();
+              true) );
+       ]
 
-module StateMachineTestLink (S : StateMachine) = struct
-  let tests =
-    [
-      "test suite for state machine "
-      >::: [
-             ("a trivial test" >:: fun _ -> assert_equal 0 0);
-             ( "test current state" >:: fun _ ->
-               assert_equal (Some "ex") (S.get_state ()) );
-             ( "test state array" >:: fun _ ->
-               assert_equal [| "ex"; "shubMap" |] (S.get_states ()) );
-             ( "test state array - changed" >:: fun _ ->
-               assert_equal (Some "mainCh") (S.get_state (S.set_state "mainCh"))
-             );
-             ( "test switching the states with no states to go" >:: fun _ ->
-               assert_raises
-                 (Invalid_transition
-                    "Attempted to transition to state main, but only have \
-                     states [||]")
-                 (let _ = S.update () in
-                  fun () -> S.update ()) );
-           ];
-    ]
-end
+let multi_state_state_machine_tests =
+  "test suite for state machines with multiple states"
+  >::: [
+         ( "if set_default is true, then it should override the state of the \
+            state machine"
+         >:: fun _ ->
+           assert_equal (Some "State 2") (TwoStateSMCopy.get_state ()) );
+         ( "adding another state should append the state to the list of states"
+         >:: fun _ ->
+           assert_equal [| "State 1"; "State 2" |]
+             (TwoStateSMCopy.get_states ()) );
+         ( "if set_default is false, then it should not override the state of \
+            the state machine"
+         >:: fun _ -> assert_equal (Some "State 2") (ThreeStateSM.get_state ())
+         );
+         ( "updating a state machine, setting the state to the returned state, \
+            and updating again should return the transition of the \
+            transitioned state"
+         >:: fun _ ->
+           assert_equal (Some "State 1")
+             (let () = ThreeStateSM.set_state "State 2" in
+              let transition = ThreeStateSM.update () in
+              let () =
+                match transition with
+                | None -> ()
+                | Some s -> ThreeStateSM.set_state s
+              in
+              ThreeStateSM.update ()) );
+         ( "updating and transitioning the state machine multiple times should \
+            return the right transition"
+         >:: fun _ ->
+           assert_equal (Some "State 1")
+             (let () = ThreeStateSM.set_state "State 1" in
+              let () =
+                for _ = 0 to 50 do
+                  let transition = ThreeStateSM.update () in
+                  match transition with
+                  | None -> ()
+                  | Some s -> ThreeStateSM.set_state s
+                done
+              in
+              ThreeStateSM.get_state ()) );
+       ]
 
-module SingleTest = StateMachineTest (StateMachineTestMod)
-module DoubleStateTest = StateMachineTestLink (StateMachineTestModDouble)
 module BeatMapTest = GeneralSongTester (Song)
 
 let mod_tests = List.flatten []
@@ -503,8 +502,10 @@ let suite =
          column_tests;
          button_tests;
          keybind_tests;
-         state_machine_tests;
          mod_suite;
+         empty_statemachine_tests;
+         one_state_state_machine_tests;
+         multi_state_state_machine_tests;
        ]
 
 let _ = run_test_tt_main suite
