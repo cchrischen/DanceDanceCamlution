@@ -2,7 +2,8 @@ open Finalproject
 
 type t = string
 
-let buffer = ref (Some "test/better-day.mp3")
+
+let buffer = ref (Some "data/music/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
