@@ -2,7 +2,6 @@ open Finalproject
 
 type t = string
 
-
 let buffer = ref (Some "data/music/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
@@ -46,16 +45,16 @@ let y_pos =
            +. (screen_height /. 2.))
     |> Array.of_list
   in
-  spread_y_positions Constants.num_notes
+  spread_y_positions Constants.num_columns
 
-(* let notes = let x_pos = spread_x_positions Constants.num_notes
+(* let notes = let x_pos = spread_x_positions Constants.num_columns
    Constants.note_width in List.map (fun x -> Note.create_note x 40.) x_pos
 
-   let buttons = let x_pos = spread_x_positions Constants.num_notes
+   let buttons = let x_pos = spread_x_positions Constants.num_columns
    Constants.note_width in let buttons_y = Constants.height * 3 / 4 |>
    float_of_int in List.map (fun x -> Raylib.Rectangle.create x buttons_y 80.
    40.) x_pos *)
-let x_pos = spread_x_positions Constants.num_notes Constants.note_width
+let x_pos = spread_x_positions Constants.num_columns Constants.note_width
 let columns = List.map (fun x -> Column.create x) x_pos
 
 let beatmap =
@@ -205,10 +204,10 @@ let draw_background () =
   Sprite.draw_sprite (Hashtbl.find !sprite_map "background") 0 0. 0.;
   draw_rectangle
     ((get_screen_width () / 2)
-    - (Constants.num_notes * int_of_float Constants.note_width / 2)
+    - (Constants.num_columns * int_of_float Constants.note_width / 2)
     - 15)
     0
-    ((Constants.num_notes * int_of_float Constants.note_width) + 20)
+    ((Constants.num_columns * int_of_float Constants.note_width) + 20)
     (get_screen_height ())
     (Color.create 42 15 71 250);
   let y_val = get_screen_height () * 3 / 4 in
@@ -219,31 +218,31 @@ let draw_background () =
            (int_of_float Constants.note_width)
            ~-(int_of_float Constants.note_height - get_screen_height ())
            (Color.create 57 17 90 200))
-       (spread_x_positions Constants.num_notes Constants.note_width));
+       (spread_x_positions Constants.num_columns Constants.note_width));
   ignore
     (List.map
        (fun x ->
          draw_rectangle
            (int_of_float (x -. 5.))
            0 5 (get_screen_height ()) Color.black)
-       (List.tl (spread_x_positions Constants.num_notes Constants.note_width)));
+       (List.tl (spread_x_positions Constants.num_columns Constants.note_width)));
 
   draw_rectangle
     ((get_screen_width () / 2)
-    - (Constants.num_notes * int_of_float Constants.note_width / 2)
+    - (Constants.num_columns * int_of_float Constants.note_width / 2)
     - 15)
     0 5 (get_screen_height ()) Color.black;
   draw_rectangle
     ((get_screen_width () / 2)
-    + (Constants.num_notes * int_of_float Constants.note_width / 2)
+    + (Constants.num_columns * int_of_float Constants.note_width / 2)
     + 5)
     0 5 (get_screen_height ()) Color.black;
   draw_rectangle
     ((get_screen_width () / 2)
-    - (Constants.num_notes * int_of_float Constants.note_width / 2)
+    - (Constants.num_columns * int_of_float Constants.note_width / 2)
     - 10)
     (y_val - 5)
-    ((Constants.num_notes * int_of_float Constants.note_width) + 15)
+    ((Constants.num_columns * int_of_float Constants.note_width) + 15)
     5 Color.raywhite
 
 let draw_combo_and_score () =
