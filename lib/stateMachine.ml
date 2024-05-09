@@ -32,7 +32,7 @@ module type StateMachine = sig
   val render : unit -> unit
 end
 
-module EmptyStateMachine : StateMachine = struct
+module EmptyStateMachine () : StateMachine = struct
   let states = [||]
   let get_states () = Array.copy states
   let current_state = ref None

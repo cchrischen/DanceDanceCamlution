@@ -54,8 +54,7 @@ module type StateMachine = sig
 
   val set_state : string -> unit
   (** [set_state state] changes the current state of the state machien to
-      [state]. Requires: [set_state] is an element of [states]. Raises:
-      [Invalid_transition] is [state] is not in [states]. *)
+      [state]. Requires: [set_state] is an element of [states]. *)
 
   val init : unit -> unit
   (** [init ()] initializes all states in the state machine. *)
@@ -72,10 +71,10 @@ module type StateMachine = sig
       an element of [states]. *)
 end
 
-module EmptyStateMachine : StateMachine
-(** [EmptyStateMachine] is a state machine with no states. [current_state] is
+(** [EmptyStateMachine ()] is a state machine with no states. [current_state] is
     [None]. Raises: [Empty_state_machine] if [init], [update], and [render] are
     called. *)
+module EmptyStateMachine : functor () -> StateMachine
 
 (** [AddState (M) (S)] is a functor that adds state [S] to state machine [M].
     The resulting state machine with have the state [S] as well as the states in
