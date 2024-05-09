@@ -19,3 +19,5 @@ let distance (x1, y1) (x2, y2) =
   let dx = x1 - x2 in
   let dy = y1 - y2 in
   (dx * dx) + (dy * dy) |> float_of_int |> sqrt
+
+(* let note_offset = *)

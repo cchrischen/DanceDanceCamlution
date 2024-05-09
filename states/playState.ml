@@ -2,6 +2,7 @@ open Finalproject
 
 type t = string
 
+
 let buffer = ref (Some "data/music/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
@@ -80,6 +81,7 @@ let time = ref 0
 let music = ref None
 
 let init () =
+  Random.init 69420;
   music := Some (Beatmap.Song.init (Option.get !buffer));
   sprite_map := Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
   Hashtbl.add sound_map "hit_sound"
@@ -174,14 +176,14 @@ let draw_key_counters () =
        (fun y -> Sprite.draw_sprite counter_frames 0 (float_of_int x_pos) y)
        y_pos)
 
-let drop_notes columns time beatmap =
-  for i = 0 to Array.length beatmap - 1 do
-    let note = beatmap.(i) in
-    if fst note <> -1 && time >= fst note then begin
-      Column.add_note (List.nth columns (snd note));
-      beatmap.(i) <- (-1, -1)
-    end
-  done
+let drop_notes columns music =
+  let is_on_note_onset = Beatmap.Song.is_on_next_note music Constants.offset in
+  if is_on_note_onset then (
+    let note = Random.int 4 in
+    print_endline "bruh";
+    Beatmap.Song.inc_note music;
+    Column.add_note (List.nth columns note))
+  else ()
 
 let update () =
   let open Raylib in
@@ -189,9 +191,9 @@ let update () =
     (List.map
        (List.map check_combo_break)
        (List.map (List.map Note.update) (List.map Column.get_notes columns)));
-  drop_notes columns !time beatmap;
   time := !time + 1;
   Raylib.update_music_stream (Option.get !music).audio_source;
+  drop_notes columns (Option.get !music);
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
   if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"

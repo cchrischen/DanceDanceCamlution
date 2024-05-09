@@ -20,3 +20,14 @@ let note_color = Color.create 200 120 20 255
 let button_color = Color.create 60 30 130 250
 let holding_button_color = Color.create 110 80 180 250
 let dim_background_color = Color.create 0 0 0 100
+
+(**[offset] is the time between a note appearing in a song and a note added to a
+   column. Calculated using the "time" of a note as stated in [Note.create_note]
+   which I assume is the number of frames (60 per seconds) for the note to reach
+   the hitbox. [offset] = 1/ [time] * 60 *)
+let offset = 1. /. 40. *. 60.
+
+(**[diff] is the difficulty of the game. It means the frequency with which the
+   notes in the beatmap is read. [diff] = 1 means every note in beatmap is read
+   while [diff] = 3 means one in three notes are read.*)
+let diff = 3

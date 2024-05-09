@@ -11,6 +11,7 @@ let init () =
   init_window Constants.width Constants.height "DanceDanceCamlution";
   set_target_fps Constants.target_fps;
   init_audio_device ();
+  Random.init 69420;
   SM.init ()
 
 let rec loop () =
