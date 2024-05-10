@@ -29,8 +29,9 @@ let rec loop () =
         end_drawing ();
         match transition with
         | None -> ()
-        | Some s -> SM.set_state s
-        (* SM.init () *)
+        | Some s ->
+            SM.set_state s;
+            SM.init ()
       end;
       loop ()
 
