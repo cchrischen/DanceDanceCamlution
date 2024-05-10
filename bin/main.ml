@@ -2,13 +2,13 @@ open Finalproject
 open States
 
 module SM1 =
-  StateMachine.AddState (StateMachine.EmptyStateMachine ()) (PlayState)
+  StateMachine.AddState (StateMachine.EmptyStateMachine ()) (MusicSelectState)
 
-module SM2 = StateMachine.AddState (SM1) (GameOverState)
-module SM3 = StateMachine.AddState (SM2) (PauseState)
+module SM2 = StateMachine.AddState (SM1) (PauseState)
+module SM3 = StateMachine.AddState (SM2) (PlayState)
 module SM4 = StateMachine.AddState (SM3) (TitleState)
 module SM5 = StateMachine.AddState (SM4) (SettingsState)
-module SM = StateMachine.AddState (SM5) (MusicSelectState)
+module SM = StateMachine.AddState (SM5) (GameOverState)
 
 let init () =
   let open Raylib in
@@ -30,6 +30,10 @@ let rec loop () =
         end_drawing ();
         match transition with
         | None -> ()
+        | Some "reset" ->
+            SM.reset ();
+            SM.init ();
+            SM.set_state "title"
         | Some s ->
             SM.set_state s;
             SM.init ()

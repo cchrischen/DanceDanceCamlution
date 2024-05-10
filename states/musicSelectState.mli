@@ -19,3 +19,5 @@ val update : unit -> string option
 
 val render : unit -> unit
 (** [render ()] draws a the music selection menu in the middle of the screen. *)
+
+val reset : unit -> unit

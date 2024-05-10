@@ -19,3 +19,5 @@ val update : unit -> string option
 
 val render : unit -> unit
 (** [render ()] draws the title screen *)
+
+val reset : unit -> unit

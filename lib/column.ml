@@ -70,3 +70,5 @@ let rec check_remove_notes notes index =
 let remove_dead_notes (col : t) =
   let index = check_remove_notes (List.map Note.get_sprite (get_notes col)) 0 in
   if index = -1 then () else fst col := remove_from_list (get_notes col) index
+
+let reset (col : t) = fst col := []

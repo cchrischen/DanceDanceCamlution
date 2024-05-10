@@ -68,6 +68,20 @@ let init () =
   Hashtbl.add sound_map "hit_note"
     (Raylib.load_sound "data/sounds/hit_note.wav")
 
+let reset () =
+  List.iter (fun col -> Column.reset col) columns;
+  music := None;
+  score := 0;
+  combo := 0;
+  valid_press := true;
+  counter_array.(0) <- 0;
+  counter_array.(1) <- 0;
+  counter_array.(2) <- 0;
+  counter_array.(3) <- 0;
+  button_frame_num := 0;
+  sprite_map := Hashtbl.create 1;
+  time := 0
+
 let check_combo_break break_combo = if break_combo then combo := 0
 
 let draw_key_counter_text () =

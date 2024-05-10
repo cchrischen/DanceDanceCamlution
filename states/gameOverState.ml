@@ -10,14 +10,15 @@ let return_home_y = float_of_int Constants.height /. 2.
 let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
 let return_home_hit = ref false
 let exit_hit = ref false
-let set_default = true
+let set_default = false
+let reset () = ()
 
 let init () =
   sprite_map := Sprite.initialize_sprites "data/sprites/titlestatesprites.csv"
 
 let buffer = ref (Some 0)
 let set_buffer (t : t) = buffer := Some t
-let update () = if !return_home_hit then Some "title" else None
+let update () = if !return_home_hit then Some "reset" else None
 
 let render () =
   match !exit_hit with

@@ -55,3 +55,11 @@ let render () =
   gui_state.list_view_ex_focus <- list_view_ex_focus;
   gui_state.list_view_ex_active <- list_view_ex_active;
   ()
+
+let reset () =
+  gui_state.list_view_ex_index <- 0;
+  gui_state.list_view_ex_focus <- 0;
+  gui_state.list_view_ex_index <- 0;
+  gui_state.is_open <- true;
+  files_list := [];
+  buffer := None

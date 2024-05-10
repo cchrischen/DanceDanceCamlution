@@ -88,3 +88,5 @@ let render () =
     ((Constants.height / 2) - 200)
     60 Color.black;
   draw_keybind_grid ()
+
+let reset () = ()

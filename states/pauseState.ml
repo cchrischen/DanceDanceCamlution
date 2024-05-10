@@ -16,3 +16,5 @@ let update () =
 let render () =
   let open Raylib in
   draw_text "Paused" (Constants.width / 2) (Constants.height / 2) 40 Color.red
+
+let reset () = ()
