@@ -56,26 +56,6 @@ let y_pos =
    40.) x_pos *)
 let x_pos = spread_x_positions Constants.num_columns Constants.note_width
 let columns = List.map (fun x -> Column.create x) x_pos
-
-let beatmap =
-  [|
-    (20, 1);
-    (40, 2);
-    (60, 3);
-    (80, 1);
-    (120, 3);
-    (120, 2);
-    (140, 3);
-    (140, 0);
-    (160, 2);
-    (180, 0);
-    (200, 1);
-    (220, 2);
-    (240, 3);
-    (260, 1);
-    (280, 2);
-  |]
-
 let time = ref 0
 let music = ref None
 
@@ -191,13 +171,17 @@ let update () =
        (List.map check_combo_break)
        (List.map (List.map Note.update) (List.map Column.get_notes columns)));
   time := !time + 1;
-  Raylib.update_music_stream (Option.get !music).audio_source;
-  drop_notes columns (Option.get !music);
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
   if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
   else if Button.check_click (mx, my) !settings_button then Some "settings"
-  else None
+  else if Beatmap.Song.is_song_over (Option.get !music) then
+    let _ = GameOverState.set_buffer !score in
+    Some "over"
+  else
+    let _ = Raylib.update_music_stream (Option.get !music).audio_source in
+    let _ = drop_notes columns (Option.get !music) in
+    None
 
 let draw_background () =
   let open Raylib in
