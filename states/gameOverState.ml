@@ -34,7 +34,7 @@ let init () =
   | _ -> grade := "F"
 
 let set_buffer (t : t) = buffer := Some t
-let update () = if !return_home_hit then Some "select" else None
+let update () = if !return_home_hit then Some "reset" else None
 let reset () = ()
 
 let render () =
