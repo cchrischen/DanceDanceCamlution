@@ -33,7 +33,7 @@ let rec loop () =
         | Some "reset" ->
             SM.reset ();
             SM.init ();
-            SM.set_state "title"
+            SM.set_state "select"
         | Some s ->
             SM.set_state s;
             SM.init ()
