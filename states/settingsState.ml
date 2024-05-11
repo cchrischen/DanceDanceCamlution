@@ -10,6 +10,8 @@ let is_menu_open = ref false
 let menu_width = 750
 let menu_height = 500
 let keybind_buttons = ref []
+let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
+let sound_map : (string, Raylib.Sound.t) Hashtbl.t = Hashtbl.create 10
 
 let init () =
   let locations =
@@ -24,7 +26,10 @@ let init () =
   let buttons =
     List.map (fun (x, y, w, h) -> Button.make_rect_button (x, y) w h) locations
   in
-  keybind_buttons := buttons
+  keybind_buttons := buttons;
+  sprite_map := Sprite.initialize_sprites "data/sprites/settingstatesprites.csv";
+  Hashtbl.add sound_map "button_unselect"
+    (Raylib.load_sound "data/sounds/button_unselect.wav")
 
 let settings_button =
   ref (Button.make_circle_button (60, Constants.height - 60) 50)
@@ -60,7 +65,13 @@ let update () =
       (fun i button ->
         if Button.check_click (mx, my) button then handle_click i)
       !keybind_buttons;
-    if Button.check_click (mx, my) !settings_button then Some "play" else None
+    if Button.check_click (mx, my) !settings_button then (
+      Raylib.play_sound (Hashtbl.find sound_map "button_unselect");
+      match !buffer with
+      | Some 1 -> Some "title"
+      | Some 0 -> Some "play"
+      | _ -> None)
+    else None
   end
 
 let draw_keybind_grid () =
@@ -78,11 +89,25 @@ let draw_keybind_grid () =
          draw_text key (x + 15) (y + 10) 30 Color.black)
        all_keys)
 
+let settings_sprite mx my =
+  if Button.check_hover (mx, my) !settings_button then
+    Sprite.draw_sprite
+      (Hashtbl.find !sprite_map "settings")
+      1 10.
+      (float_of_int (Constants.height - 110))
+  else
+    Sprite.draw_sprite
+      (Hashtbl.find !sprite_map "settings")
+      0 10.
+      (float_of_int (Constants.height - 110))
+
 let render () =
   let open Raylib in
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
   draw_rectangle (fst menu_nw_corner) (snd menu_nw_corner) menu_width
     menu_height Color.gray;
   Button.draw !settings_button Color.gray;
+  settings_sprite (get_mouse_x ()) (get_mouse_y ());
   draw_text "Settings"
     ((Constants.width / 2) - 125)
     ((Constants.height / 2) - 200)

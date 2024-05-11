@@ -18,18 +18,22 @@ let gui_state : music_gui_state =
   }
 
 let directory = "data/music"
+let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
 let files_list = ref []
-let name = "musicSelect"
+let name = "select"
 let set_default = false
 let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
-let init () = ()
+
+let init () =
+  sprite_map :=
+    Sprite.initialize_sprites "data/sprites/musicselectscreensprites.csv"
 
 let update () =
   let files = Raylib.load_directory_files_ex directory ".mp3" false in
   files_list := Raylib.FilePathList.files files;
   Raylib.unload_directory_files files;
-  if gui_state.is_open then None
+  if gui_state.is_open || gui_state.list_view_ex_active = -1 then None
   else
     let _ =
       Beatmap.Song.create_beatmap
@@ -42,13 +46,26 @@ let update () =
 
 let render () =
   let open Raygui in
-  let rect = Raylib.Rectangle.create 300.0 300.0 300. 300.0 in
+  let open Raylib in
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
+  draw_text "Song Select" ((Constants.width / 2) - 300) 50 100 Color.raywhite;
+  let rect =
+    Rectangle.create
+      ((float_of_int Constants.width /. 2.) -. 300.)
+      ((float_of_int Constants.height /. 2.) -. 100.)
+      600. 400.0
+  in
   let list_view_ex_active, list_view_ex_focus, list_view_ex_index =
     list_view_ex rect !files_list gui_state.list_view_ex_focus
       gui_state.list_view_ex_index gui_state.list_view_ex_active
   in
   let is_open =
-    not (button (Raylib.Rectangle.create 300.0 600.0 60.0 20.0) "done")
+    not
+      (button
+         (Rectangle.create
+            ((float_of_int Constants.width /. 2.) -. 300.)
+            625.0 600. 50.0)
+         "Done")
   in
   gui_state.is_open <- is_open;
   gui_state.list_view_ex_index <- list_view_ex_index;

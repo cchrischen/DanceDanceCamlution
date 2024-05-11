@@ -13,7 +13,6 @@ open Finalproject.Keybind
 let util_tests =
   "test suite for utils module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "list creation" >:: fun _ ->
            assert_equal [ 1; 2; 3; 4; 5 ] (make_list 5) );
          ("list with one elem" >:: fun _ -> assert_equal [ 1 ] (make_list 1));
@@ -37,7 +36,6 @@ let close_to_edge = create_note 5. 716.
 let note_tests =
   "test suite for notes module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "note sprite update check" >:: fun _ ->
            assert_equal 13.
              (let _ = update sample_note in
@@ -94,7 +92,6 @@ let note_tests =
 let column_tests =
   "test suite for notes module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "create a column" >:: fun _ ->
            assert_equal
              (Rectangle.y (Rectangle.create 1.0 540. 80. 40.))
@@ -188,7 +185,6 @@ let pause = PAUSE
 let keybind_tests =
   "test suite for button module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "raylib to keybind - button 1" >:: fun _ ->
            assert_equal key1 (raylib_to_keybind Raylib.Key.D) );
          ( "raylib to keybind - button 2" >:: fun _ ->
@@ -305,7 +301,6 @@ end
 let beatmap_tests =
   "test suite for notes module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "a converting beatmap txt to a list" >:: fun _ ->
            assert_equal
              (txt_to_array "beatmapTest.txt")
@@ -315,7 +310,6 @@ let beatmap_tests =
 let sprite_tests =
   "test suite for sprites module "
   >::: [
-         ("a trivial test" >:: fun _ -> assert_equal 0 0);
          ( "creating a sprite array" >:: fun _ ->
            assert_equal
              (let sprite =
@@ -380,6 +374,7 @@ module State1 : State with type t = int = struct
   let init () = ()
   let update () = Some "State 2"
   let render () = ()
+  let reset () = ()
 end
 
 module State2 : State = struct
@@ -392,6 +387,7 @@ module State2 : State = struct
   let set_buffer d = buffer := Some d
   let update () = Some "State 3"
   let render () = ()
+  let reset () = ()
 end
 
 module State3 : State = struct
@@ -404,6 +400,7 @@ module State3 : State = struct
   let set_buffer d = buffer := Some d
   let update () = Some "State 1"
   let render () = ()
+  let reset () = ()
 end
 
 module OneStateSM : StateMachine = AddState (EmptyStateMachine ()) (State1)
