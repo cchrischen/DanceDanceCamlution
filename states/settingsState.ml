@@ -90,7 +90,7 @@ let draw_keybind_grid () =
        all_keys)
 
 let settings_sprite mx my =
-  if Button.check_hover (mx, my) !settings_button then
+  if Button.overlap_detect (mx, my) !settings_button then
     Sprite.draw_sprite
       (Hashtbl.find !sprite_map "settings")
       1 10.

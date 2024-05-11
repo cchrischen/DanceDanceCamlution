@@ -32,7 +32,7 @@ let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 
 let settings_sprite mx my =
-  if Button.check_hover (mx, my) !settings_button then
+  if Button.overlap_detect (mx, my) !settings_button then
     Sprite.draw_sprite
       (Hashtbl.find !sprite_map "settings")
       1

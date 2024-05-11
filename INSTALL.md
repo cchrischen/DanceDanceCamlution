@@ -3,7 +3,7 @@
     ```shell
     opam update
     opam upgrade
-    opam install raylib batteries
+    opam install raylib batteries raygui
     ```
 2. Run the program
     ```shell

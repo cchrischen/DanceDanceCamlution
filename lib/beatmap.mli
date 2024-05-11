@@ -33,4 +33,6 @@ module Song : sig
   (**[get_index s] returns [s.next_note_index].*)
 
   val is_song_over : song -> bool
+  (** [is_song_over s] checks beatmap file corresponding to [s] to see if end of
+      beatmap file has been reached and if so returns true otherwise false*)
 end

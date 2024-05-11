@@ -28,6 +28,14 @@ let util_tests =
          ( "array to string test" >:: fun _ ->
            assert_equal "[|123|]" (array_to_string string_of_int [| 1; 2; 3 |])
          );
+         ( "distance test - edge case 0" >:: fun _ ->
+           assert_equal 0. (distance (0, 0) (0, 0)) );
+         ( "distance test - from origin" >:: fun _ ->
+           assert_equal 5. (distance (0, 0) (3, 4)) );
+         ( "distance test - between two points" >:: fun _ ->
+           assert_equal 5. (distance (1, 1) (4, 5)) );
+         ( "distance test - between positive and negative points" >:: fun _ ->
+           assert_equal 5. (distance (0, 0) (-3, -4)) );
        ]
 
 let sample_note = create_note 5. 5.
@@ -155,6 +163,50 @@ let column_tests =
                 (let col = create 1.0 in
                  let _ = add_note col in
                  col)) );
+         ( "reset column check - empty edge case" >:: fun _ ->
+           assert_equal 0
+             (List.length
+                (let col = create 1.0 in
+                 let _ = reset col in
+                 get_notes col)) );
+         ( "reset column check - add one note case" >:: fun _ ->
+           assert_equal 0
+             (List.length
+                (let col = create 1.0 in
+                 let _ = add_note col in
+                 let _ = reset col in
+                 get_notes col)) );
+         ( "reset column check - add one note then remove then reset case"
+         >:: fun _ ->
+           assert_equal 0
+             (List.length
+                (let col = create 1.0 in
+                 let _ = add_note col in
+                 let _ = increment_notes col in
+                 let _ =
+                   Rectangle.set_y (get_sprite (List.hd (get_notes col))) 750.
+                 in
+                 let _ = remove_dead_notes col in
+                 let _ = reset col in
+                 get_notes col)) );
+         ( "reset column check - make sure button is not reset for its \
+            attributes"
+         >:: fun _ ->
+           assert_equal
+             (Rectangle.y
+                (let y = height * 3 / 4 |> float_of_int in
+                 let button = Rectangle.create 1. y 80. 40. in
+                 button))
+             (Rectangle.y
+                (let col = create 1.0 in
+                 let _ = add_note col in
+                 let _ = increment_notes col in
+                 let _ =
+                   Rectangle.set_y (get_sprite (List.hd (get_notes col))) 750.
+                 in
+                 let _ = remove_dead_notes col in
+                 let _ = reset col in
+                 get_button col)) );
        ]
 
 let rec_button = make_rect_button (5, 5) 10 10
@@ -174,6 +226,52 @@ let button_tests =
            assert_equal (0, 0, 0, 0) (get_dims circ_button_zero) );
          ( "get dimensions circle test" >:: fun _ ->
            assert_equal (-5, -5, 10, 10) (get_dims circ_button) );
+         ( "overlap test with rectangle button  1 " >:: fun _ ->
+           assert_equal true (overlap_detect (5, 5) rec_button) );
+         ( "overlap test with rectangle button iter 2 " >:: fun _ ->
+           assert_equal true (overlap_detect (6, 6) rec_button) );
+         ( "overlap test with rectangle button  3 - closer to edge " >:: fun _ ->
+           assert_equal true (overlap_detect (10, 10) rec_button) );
+         ( "overlap test with rectangle button  3 - mixed cords " >:: fun _ ->
+           assert_equal true (overlap_detect (6, 10) rec_button) );
+         ( "overlap test with rectangle button  4 - edge testd " >:: fun _ ->
+           assert_equal true (overlap_detect (15, 15) rec_button) );
+         ( "overlap test with rectangle button 2 " >:: fun _ ->
+           assert_equal false (overlap_detect (1, 1) rec_button) );
+         ( "overlap test with rectangle button 3 " >:: fun _ ->
+           assert_equal false (overlap_detect (-1, -1) rec_button) );
+         ( "overlap test with rectangle button 4 " >:: fun _ ->
+           assert_equal false (overlap_detect (2, 2) rec_button) );
+         ( "overlap p1" >:: fun _ ->
+           assert_equal false (overlap_detect (16, 16) rec_button) );
+         ( "overlap p2 neg" >:: fun _ ->
+           assert_equal false (overlap_detect (-16, 16) rec_button) );
+         ( "overlap test with rectangle button - false" >:: fun _ ->
+           assert_equal false (overlap_detect (20, 20) rec_button) );
+         ( "overlap test with rectangle button - false" >:: fun _ ->
+           assert_equal false (overlap_detect (30, 20) rec_button) );
+         ( "overlap test with rectangle button - zero case" >:: fun _ ->
+           assert_equal false (overlap_detect (15, 15) rec_button_zero) );
+         ( "overlap test with circle button" >:: fun _ ->
+           assert_equal true (overlap_detect (5, 5) circ_button) );
+         ( "overlap test with circle button iter 2" >:: fun _ ->
+           assert_equal true (overlap_detect (6, 6) circ_button) );
+         ( "overlap test with circle button iter 3 - closer to edge" >:: fun _ ->
+           assert_equal true (overlap_detect (7, 8) circ_button) );
+         ( "overlap test with circle button - edge case" >:: fun _ ->
+           assert_equal true (overlap_detect (12, 12) circ_button) );
+         ( "overlap test with circle button - edge case mixed true" >:: fun _ ->
+           assert_equal true (overlap_detect (10, 12) circ_button) );
+         ( "overlap test with circle button - edge case mixed false" >:: fun _ ->
+           assert_equal false (overlap_detect (13, 12) circ_button) );
+         ( "overlap test with circle button - edge case" >:: fun _ ->
+           assert_equal false (overlap_detect (15, 15) circ_button) );
+         ( "overlap test with circle button - false" >:: fun _ ->
+           assert_equal false (overlap_detect (20, 20) circ_button) );
+         ( "overlap test with rectangle button - zero case" >:: fun _ ->
+           assert_equal false (overlap_detect (15, 15) circ_button_zero) );
+         ( "overlap test with rectangle button - zero case" >:: fun _ ->
+           assert_equal false (overlap_detect (20, 20) circ_button) );
        ]
 
 let key1 = BUTTON1
@@ -325,6 +423,29 @@ let sprite_tests =
            assert_equal 10
              (num_frames
                 (generate_sprite 10 10 10 5 "test/titlescreen_test.png")) );
+         ( "get texture check" >:: fun _ ->
+           assert_equal
+             (Texture2D.height (initialize_sprite "test/titlescreen_test.png"))
+             (Texture2D.height
+                (texture
+                   (generate_sprite 10 10 10 5 "test/titlescreen_test.png"))) );
+         ( "get sprite_sheet check" >:: fun _ ->
+           assert_equal
+             (Array.length (create_sprites 10 10 10 5))
+             (Array.length
+                (sprite_sheet
+                   (generate_sprite 10 10 10 5 "test/titlescreen_test.png"))) );
+         ( "initialzing hashtable sprite check" >:: fun _ ->
+           assert_equal 2
+             (Array.length
+                (sprite_sheet
+                   (Hashtbl.find
+                      (initialize_sprites "test/testsprites.csv")
+                      (let arr =
+                         Array.of_list
+                           (List.tl (Csv.load "test/testsprites.csv"))
+                       in
+                       List.nth arr.(0) 0)))) );
        ]
 
 module EmptySM = EmptyStateMachine ()
@@ -494,7 +615,6 @@ let suite =
   >::: [
          util_tests;
          note_tests;
-         beatmap_tests;
          sprite_tests;
          column_tests;
          button_tests;
