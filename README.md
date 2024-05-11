@@ -11,7 +11,7 @@ A combo, representing your streak of notes hit, is indicated on the bottom right
 At the end of a song, your accuracy of notes hit is displayed.
 
 ## Adjustments
-* If you find the difficulty too hard, navigate to `lib/constants/ml`, change `diff` to your liking. `diff` is inversely proportional to how many notes will fall.
+* If you find the difficulty too hard, navigate to `lib/constants.ml`, change `diff` to your liking. `diff` is inversely proportional to how many notes will fall.
 * The four keybinds for the columns and the pause button can be changed to any alphanumeric keyboard key. Do not bind two buttons to the same key.
 * If you want to play this with any audio file, place the file in `data/music`.
 
