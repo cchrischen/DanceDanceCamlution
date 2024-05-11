@@ -2,7 +2,7 @@ open Finalproject
 
 type t = string
 
-let buffer = ref (Some "data/music/better-day.mp3")
+let buffer = ref (Some "test/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
@@ -60,13 +60,18 @@ let time = ref 0
 let music = ref None
 
 let init () =
-  Random.init 69420;
-  music := Some (Beatmap.Song.init (Option.get !buffer));
-  sprite_map := Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
-  Hashtbl.add sound_map "hit_sound"
-    (Raylib.load_sound "data/sounds/hit_sound.wav");
-  Hashtbl.add sound_map "hit_note"
-    (Raylib.load_sound "data/sounds/hit_note.wav")
+  match Option.get !buffer with
+  | "test/better-day.mp3" -> ()
+  | _ ->
+      Random.init 69420;
+      music := Some (Beatmap.Song.init (Option.get !buffer));
+      sprite_map :=
+        Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
+      Hashtbl.add sound_map "hit_sound"
+        (Raylib.load_sound "data/sounds/hit_sound.wav");
+      Hashtbl.add sound_map "hit_note"
+        (Raylib.load_sound "data/sounds/hit_note.wav");
+      set_buffer "test/better-day.mp3"
 
 let reset () =
   List.iter (fun col -> Column.reset col) columns;
