@@ -36,7 +36,9 @@ module Song = struct
     let beatmap_path =
       String.sub song_path 0 (String.length song_path - 3) ^ "beatmap.txt"
     in
-    let beatmap = read_beatmap_txt beatmap_path in
+    let beatmap =
+      Array.filter (fun x -> x > 0.5) (read_beatmap_txt beatmap_path)
+    in
     { audio_source = song; beatmap; next_note_index = 0 }
 
   let reset_note (s : song) : unit = s.next_note_index <- 0
@@ -45,7 +47,7 @@ module Song = struct
     if s.next_note_index <> Array.length s.beatmap then
       let onset_next_note = Array.get s.beatmap s.next_note_index in
       let time_in_song = Raylib.get_music_time_played s.audio_source in
-      Float.abs (time_in_song -. offset -. onset_next_note) < 0.02
+      Float.abs (time_in_song -. offset -. onset_next_note) < 1.
     else
       let _ = if Constants.repeat_song then reset_note s else () in
       false

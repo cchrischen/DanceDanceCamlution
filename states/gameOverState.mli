@@ -1,4 +1,4 @@
-type t = int
+type t = int * float
 (** [t] is the type of data another state can send to the music select state. *)
 
 val name : string
