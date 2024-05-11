@@ -8,6 +8,7 @@ let name = "play"
 let set_default = true
 let score = ref 0
 let combo = ref 0
+let notes_hit = ref 0.
 let valid_press = ref true
 let counter_array = Array.make 4 0
 let button_frame_num = ref 0
@@ -35,6 +36,12 @@ let spread_x_positions num_els el_width =
          ((value -. ((float_of_int num_els /. 2.) +. 1.)) *. (gap +. 5.))
          +. (screen_width /. 2.))
 
+let x_pos = spread_x_positions Constants.num_columns Constants.note_width
+let columns = List.map (fun x -> Column.create x) x_pos
+let time = ref 0
+let music = ref None
+let check_combo_break break_combo = if break_combo then combo := 0
+
 let y_pos =
   let spread_y_positions num_els =
     let screen_height = Constants.height |> float_of_int in
@@ -46,18 +53,6 @@ let y_pos =
     |> Array.of_list
   in
   spread_y_positions Constants.num_columns
-
-(* let notes = let x_pos = spread_x_positions Constants.num_columns
-   Constants.note_width in List.map (fun x -> Note.create_note x 40.) x_pos
-
-   let buttons = let x_pos = spread_x_positions Constants.num_columns
-   Constants.note_width in let buttons_y = Constants.height * 3 / 4 |>
-   float_of_int in List.map (fun x -> Raylib.Rectangle.create x buttons_y 80.
-   40.) x_pos *)
-let x_pos = spread_x_positions Constants.num_columns Constants.note_width
-let columns = List.map (fun x -> Column.create x) x_pos
-let time = ref 0
-let music = ref None
 
 let init () =
   match Option.get !buffer with
@@ -71,6 +66,8 @@ let init () =
         (Raylib.load_sound "data/sounds/hit_sound.wav");
       Hashtbl.add sound_map "hit_note"
         (Raylib.load_sound "data/sounds/hit_note.wav");
+      Hashtbl.add sound_map "start_game"
+        (Raylib.load_sound "data/sounds/start_game.wav");
       set_buffer "test/better-day.mp3"
 
 let reset () =
@@ -78,6 +75,7 @@ let reset () =
   music := None;
   score := 0;
   combo := 0;
+  notes_hit := 0.;
   valid_press := true;
   counter_array.(0) <- 0;
   counter_array.(1) <- 0;
@@ -86,8 +84,6 @@ let reset () =
   button_frame_num := 0;
   sprite_map := Hashtbl.create 1;
   time := 0
-
-let check_combo_break break_combo = if break_combo then combo := 0
 
 let draw_key_counter_text () =
   ignore
@@ -148,8 +144,33 @@ let handle_key_press col key =
         play_sound (Hashtbl.find sound_map "hit_sound") (* combo := 0 *)
       end
       else begin
+        (match acc with
+        | Miss -> ()
+        | Perfect ->
+            draw_text "Perfect!"
+              ((Constants.width / 2) - 200)
+              ((Constants.height / 2) - 50)
+              100 Color.gold
+        | Good ->
+            draw_text "Meh!"
+              ((Constants.width / 2) - 125)
+              ((Constants.height / 2) - 50)
+              100 Color.orange
+        | Great ->
+            draw_text "Great!"
+              ((Constants.width / 2) - 155)
+              ((Constants.height / 2) - 50)
+              100 Color.green);
         score := !score + (acc |> Note.calc_score !combo);
         combo := !combo + 1;
+        let calc_acc =
+          match acc with
+          | Miss -> 0.
+          | Perfect -> 1.
+          | Good -> 0.5
+          | Great -> 0.75
+        in
+        notes_hit := !notes_hit +. calc_acc;
         play_sound (Hashtbl.find sound_map "hit_note")
       end
   end;
@@ -178,29 +199,9 @@ let drop_notes columns music =
   let is_on_note_onset = Beatmap.Song.is_on_next_note music Constants.offset in
   if is_on_note_onset then (
     let note = Random.int 4 in
-    print_endline "bruh";
     Beatmap.Song.inc_note music;
     Column.add_note (List.nth columns note))
   else ()
-
-let update () =
-  let open Raylib in
-  ignore
-    (List.map
-       (List.map check_combo_break)
-       (List.map (List.map Note.update) (List.map Column.get_notes columns)));
-  time := !time + 1;
-  let mx = get_mouse_x () in
-  let my = get_mouse_y () in
-  if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
-  else if Button.check_click (mx, my) !settings_button then Some "settings"
-  else if Beatmap.Song.is_song_over (Option.get !music) then
-    let _ = GameOverState.set_buffer !score in
-    Some "over"
-  else
-    let _ = Raylib.update_music_stream (Option.get !music).audio_source in
-    let _ = drop_notes columns (Option.get !music) in
-    None
 
 let draw_background () =
   let open Raylib in
@@ -286,6 +287,46 @@ let render_col col index =
   in
   ignore (handle_key_press col (List.nth raylib_key_buttons index))
 
+let settings_sprite mx my =
+  if Button.check_hover (mx, my) !settings_button then
+    Sprite.draw_sprite
+      (Hashtbl.find !sprite_map "settings")
+      1 10.
+      (float_of_int (Constants.height - 110))
+  else
+    Sprite.draw_sprite
+      (Hashtbl.find !sprite_map "settings")
+      0 10.
+      (float_of_int (Constants.height - 110))
+
+let update () =
+  let open Raylib in
+  ignore
+    (List.map
+       (List.map check_combo_break)
+       (List.map (List.map Note.update) (List.map Column.get_notes columns)));
+  time := !time + 1;
+
+  let mx = get_mouse_x () in
+  let my = get_mouse_y () in
+  if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
+  else if Button.check_click (mx, my) !settings_button then (
+    Raylib.play_sound (Hashtbl.find sound_map "start_game");
+    SettingsState.set_buffer 0;
+    Some "settings")
+  else if Beatmap.Song.is_song_over (Option.get !music) then
+    let _ =
+      GameOverState.set_buffer
+        ( !score,
+          !notes_hit /. float_of_int (Array.length (Option.get !music).beatmap)
+        )
+    in
+    Some "over"
+  else
+    let _ = Raylib.update_music_stream (Option.get !music).audio_source in
+    let _ = drop_notes columns (Option.get !music) in
+    None
+
 let render () =
   let open Raylib in
   clear_background Constants.background_color;
@@ -297,5 +338,6 @@ let render () =
     Column.remove_dead_notes (List.nth columns i)
   done;
   Button.draw !settings_button Color.gray;
+  settings_sprite (get_mouse_x ()) (get_mouse_y ());
   draw_key_counter_text ();
   draw_fps 5 5

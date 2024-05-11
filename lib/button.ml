@@ -24,6 +24,13 @@ let check_click (mx, my) button =
   end
   else false
 
+let check_hover (mx, my) button =
+  match button with
+  | Rect { x; y; width; height } ->
+      (mx >= x && mx <= x + width) && my >= y && my <= y + height
+  | Circle { center; radius } ->
+      Utils.distance center (mx, my) <= float_of_int radius
+
 let draw button color =
   let open Raylib in
   match button with

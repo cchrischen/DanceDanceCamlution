@@ -6,9 +6,9 @@ module SM1 =
 
 module SM2 = StateMachine.AddState (SM1) (PauseState)
 module SM3 = StateMachine.AddState (SM2) (PlayState)
-module SM4 = StateMachine.AddState (SM3) (TitleState)
+module SM4 = StateMachine.AddState (SM3) (GameOverState)
 module SM5 = StateMachine.AddState (SM4) (SettingsState)
-module SM = StateMachine.AddState (SM5) (GameOverState)
+module SM = StateMachine.AddState (SM5) (TitleState)
 
 let init () =
   let open Raylib in
@@ -34,7 +34,9 @@ let rec loop () =
             SM.reset ();
             SM.init ();
             SM.set_state "title"
-
+        | Some s ->
+            SM.set_state s;
+            SM.init ()
       end;
       loop ()
 

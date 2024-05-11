@@ -1,3 +1,4 @@
 sprite_name,width,height,frames,frames_per_row
 titlescreen,1280,720,1,1
 play_button,256,256,2,1
+settings,100,100,2,1
