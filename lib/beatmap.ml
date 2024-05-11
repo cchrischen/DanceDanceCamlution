@@ -37,7 +37,7 @@ module Song = struct
       String.sub song_path 0 (String.length song_path - 3) ^ "beatmap.txt"
     in
     let beatmap =
-      Array.filter (fun x -> x > 0.5) (read_beatmap_txt beatmap_path)
+      Array.filter (fun x -> x > 0.7) (read_beatmap_txt beatmap_path)
     in
     { audio_source = song; beatmap; next_note_index = 0 }
 
