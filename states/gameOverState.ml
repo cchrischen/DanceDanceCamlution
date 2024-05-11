@@ -50,7 +50,9 @@ let render () =
         50 100 Constants.holding_button_color;
 
       Raylib.draw_text
-        ("Accuracy: " ^ Printf.sprintf "%.2f" (snd (Option.get !buffer)) ^ "%")
+        ("Accuracy: "
+        ^ Printf.sprintf "%.2f" (snd (Option.get !buffer) *. 100.)
+        ^ "%")
         250 200 100 Constants.holding_button_color;
       Raylib.draw_text !grade
         ((Constants.width / 2) - 25)
