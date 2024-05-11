@@ -20,3 +20,5 @@ val update : unit -> string option
 
 val render : unit -> unit
 (** [render ()] draws a paused sign in the middle of the screen. *)
+
+val reset : unit -> unit

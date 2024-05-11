@@ -2,7 +2,7 @@ open Finalproject
 
 type t = string
 
-let buffer = ref (Some "data/music/better-day.mp3")
+let buffer = ref (Some "test/better-day.mp3")
 let set_buffer (t : t) = buffer := Some t
 let name = "play"
 let set_default = true
@@ -56,37 +56,36 @@ let y_pos =
    40.) x_pos *)
 let x_pos = spread_x_positions Constants.num_columns Constants.note_width
 let columns = List.map (fun x -> Column.create x) x_pos
-
-let beatmap =
-  [|
-    (20, 1);
-    (40, 2);
-    (60, 3);
-    (80, 1);
-    (120, 3);
-    (120, 2);
-    (140, 3);
-    (140, 0);
-    (160, 2);
-    (180, 0);
-    (200, 1);
-    (220, 2);
-    (240, 3);
-    (260, 1);
-    (280, 2);
-  |]
-
 let time = ref 0
 let music = ref None
 
 let init () =
-  Random.init 69420;
-  music := Some (Beatmap.Song.init (Option.get !buffer));
-  sprite_map := Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
-  Hashtbl.add sound_map "hit_sound"
-    (Raylib.load_sound "data/sounds/hit_sound.wav");
-  Hashtbl.add sound_map "hit_note"
-    (Raylib.load_sound "data/sounds/hit_note.wav")
+  match Option.get !buffer with
+  | "test/better-day.mp3" -> ()
+  | _ ->
+      Random.init 69420;
+      music := Some (Beatmap.Song.init (Option.get !buffer));
+      sprite_map :=
+        Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
+      Hashtbl.add sound_map "hit_sound"
+        (Raylib.load_sound "data/sounds/hit_sound.wav");
+      Hashtbl.add sound_map "hit_note"
+        (Raylib.load_sound "data/sounds/hit_note.wav");
+      set_buffer "test/better-day.mp3"
+
+let reset () =
+  List.iter (fun col -> Column.reset col) columns;
+  music := None;
+  score := 0;
+  combo := 0;
+  valid_press := true;
+  counter_array.(0) <- 0;
+  counter_array.(1) <- 0;
+  counter_array.(2) <- 0;
+  counter_array.(3) <- 0;
+  button_frame_num := 0;
+  sprite_map := Hashtbl.create 1;
+  time := 0
 
 let check_combo_break break_combo = if break_combo then combo := 0
 
@@ -191,13 +190,17 @@ let update () =
        (List.map check_combo_break)
        (List.map (List.map Note.update) (List.map Column.get_notes columns)));
   time := !time + 1;
-  Raylib.update_music_stream (Option.get !music).audio_source;
-  drop_notes columns (Option.get !music);
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
   if is_key_pressed (Keybind.get_keybind Keybind.PAUSE) then Some "pause"
   else if Button.check_click (mx, my) !settings_button then Some "settings"
-  else None
+  else if Beatmap.Song.is_song_over (Option.get !music) then
+    let _ = GameOverState.set_buffer !score in
+    Some "over"
+  else
+    let _ = Raylib.update_music_stream (Option.get !music).audio_source in
+    let _ = drop_notes columns (Option.get !music) in
+    None
 
 let draw_background () =
   let open Raylib in

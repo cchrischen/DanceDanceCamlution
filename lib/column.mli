@@ -26,3 +26,6 @@ val key_pressed : t -> accuracy
 
 val remove_dead_notes : t -> unit
 (** Removes notes which are below the bottom of the screen. *)
+
+val reset : t -> unit
+(**[reset col] deletes all notes from the column.*)

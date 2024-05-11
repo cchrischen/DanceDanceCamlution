@@ -35,6 +35,8 @@ module type State = sig
 
   val render : unit -> unit
   (** [render ()] draws the to GUI. *)
+
+  val reset : unit -> unit
 end
 
 (** [StateMachine] is collection of states with distinct logic and supports
@@ -69,6 +71,9 @@ module type StateMachine = sig
   (** [render ()] draws the state whose name matches [current_state]. Raises:
       [Invalid_transition] if the function is ran while [current_state] is not
       an element of [states]. *)
+
+  val reset : unit -> unit
+  (**[reset ()] resets the states of the current *)
 end
 
 (** [EmptyStateMachine ()] is a state machine with no states. [current_state] is

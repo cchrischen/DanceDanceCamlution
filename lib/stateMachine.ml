@@ -20,6 +20,7 @@ module type State = sig
   val init : unit -> unit
   val update : unit -> string option
   val render : unit -> unit
+  val reset : unit -> unit
 end
 
 module type StateMachine = sig
@@ -30,6 +31,7 @@ module type StateMachine = sig
   val init : unit -> unit
   val update : unit -> string option
   val render : unit -> unit
+  val reset : unit -> unit
 end
 
 module EmptyStateMachine () : StateMachine = struct
@@ -41,6 +43,7 @@ module EmptyStateMachine () : StateMachine = struct
   let init () = ()
   let update () = raise_invalid_state current_state states
   let render () = raise_invalid_state current_state states
+  let reset () = ()
 end
 
 module AddState (M : StateMachine) (S : State) : StateMachine = struct
@@ -61,6 +64,12 @@ module AddState (M : StateMachine) (S : State) : StateMachine = struct
   let init () =
     S.init ();
     try M.init () with
+    | Failure _ -> ()
+    | Empty_state_machine -> ()
+
+  let reset () =
+    S.reset ();
+    try M.reset () with
     | Failure _ -> ()
     | Empty_state_machine -> ()
 

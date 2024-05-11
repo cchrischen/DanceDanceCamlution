@@ -52,4 +52,10 @@ module Song = struct
 
   let inc_note (s : song) : unit = s.next_note_index <- s.next_note_index + 1
   let get_index (s : song) = s.next_note_index
+
+  let is_song_over (s : song) =
+    Float.abs
+      (Raylib.get_music_time_played s.audio_source
+      -. Raylib.get_music_time_length s.audio_source)
+    < 0.1
 end

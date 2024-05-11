@@ -31,4 +31,6 @@ module Song : sig
 
   val get_index : song -> int
   (**[get_index s] returns [s.next_note_index].*)
+
+  val is_song_over : song -> bool
 end
