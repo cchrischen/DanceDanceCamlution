@@ -34,6 +34,8 @@ let init () =
 let settings_button =
   ref (Button.make_circle_button (60, Constants.height - 60) 50)
 
+let home_button = ref (Button.make_rect_button (675, 400) 300 100)
+
 let menu_nw_corner =
   ( (Constants.width / 2) - (menu_width / 2),
     (Constants.height / 2) - (menu_height / 2) )
@@ -63,7 +65,10 @@ let update () =
     let my = get_mouse_y () in
     List.iteri
       (fun i button ->
-        if Button.check_click (mx, my) button then handle_click i)
+        if
+          is_mouse_button_pressed MouseButton.Left
+          && Button.check_click (mx, my) button
+        then handle_click i)
       !keybind_buttons;
     if Button.check_click (mx, my) !settings_button then (
       Raylib.play_sound (Hashtbl.find sound_map "button_unselect");
@@ -108,6 +113,7 @@ let render () =
     menu_height Color.gray;
   Button.draw !settings_button Color.gray;
   settings_sprite (get_mouse_x ()) (get_mouse_y ());
+  Button.draw !home_button Color.red;
   draw_text "Settings"
     ((Constants.width / 2) - 125)
     ((Constants.height / 2) - 200)

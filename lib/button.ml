@@ -14,15 +14,11 @@ let make_rect_button (x, y) w h = Rect { x; y; width = w; height = h }
 let make_circle_button center radius = Circle { center; radius }
 
 let check_click (mx, my) button =
-  let open Raylib in
-  if is_mouse_button_pressed MouseButton.Left then begin
-    match button with
-    | Rect { x; y; width; height } ->
-        (mx >= x && mx <= x + width) && my >= y && my <= y + height
-    | Circle { center; radius } ->
-        Utils.distance center (mx, my) <= float_of_int radius
-  end
-  else false
+  match button with
+  | Rect { x; y; width; height } ->
+      (mx >= x && mx <= x + width) && my >= y && my <= y + height
+  | Circle { center; radius } ->
+      Utils.distance center (mx, my) <= float_of_int radius
 
 let check_hover (mx, my) button =
   match button with
