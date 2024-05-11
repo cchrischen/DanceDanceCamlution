@@ -87,7 +87,7 @@ let draw_keybind_grid () =
   ignore
     (List.map
        (fun button ->
-         if Button.check_hover (get_mouse_x (), get_mouse_y ()) button then
+         if Button.overlap_detect (get_mouse_x (), get_mouse_y ()) button then
            Button.draw button (Color.create 230 145 0 255)
          else Button.draw button Color.orange)
        !keybind_buttons);
@@ -120,7 +120,7 @@ let render () =
     menu_height Color.gray;
   Button.draw !settings_button Color.gray;
   settings_sprite (get_mouse_x ()) (get_mouse_y ());
-  if Button.check_hover (get_mouse_x (), get_mouse_y ()) !home_button then
+  if Button.overlap_detect (get_mouse_x (), get_mouse_y ()) !home_button then
     Button.draw !home_button Color.maroon
   else Button.draw !home_button Color.red;
   let is_waiting, _, _ = !waiting in
