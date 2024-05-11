@@ -1,5 +1,5 @@
 (test
- (name test_finalproject)
- (libraries finalproject ounit2 qcheck raylib)
+ (name test_ddc)
+ (libraries DDC ounit2 qcheck raylib)
  (deps
   (glob_files *.mp3)))

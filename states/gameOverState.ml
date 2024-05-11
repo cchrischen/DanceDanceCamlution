@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 
 type t = int * float
 
@@ -22,9 +22,11 @@ let color_map =
     ("S", Raylib.Color.gold);
   ]
 
-let init () =
+let load () =
   sprite_map :=
-    Sprite.initialize_sprites "data/sprites/musicselectscreensprites.csv";
+    Sprite.initialize_sprites "data/sprites/musicselectscreensprites.csv"
+
+let init () =
   match snd (Option.get !buffer) with
   | x when x >= 0.9 -> grade := "S"
   | x when x >= 0.8 -> grade := "A"

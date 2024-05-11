@@ -37,6 +37,11 @@ module type State = sig
   (** [render ()] draws the to GUI. *)
 
   val reset : unit -> unit
+  (** [reset ()] resets the state. Anything that should happen after a user
+      plays again should go here. *)
+
+  val load : unit -> unit
+  (** [load ()] loads the state, specifically sprites. *)
 end
 
 (** [StateMachine] is collection of states with distinct logic and supports
@@ -73,7 +78,10 @@ module type StateMachine = sig
       an element of [states]. *)
 
   val reset : unit -> unit
-  (**[reset ()] resets the states of the current *)
+  (**[reset ()] resets all states in the state machine. *)
+
+  val load : unit -> unit
+  (** [load ()] loads all sprites. *)
 end
 
 (** [EmptyStateMachine ()] is a state machine with no states. [current_state] is

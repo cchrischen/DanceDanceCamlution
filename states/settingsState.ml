@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 
 type t = int
 
@@ -6,12 +6,16 @@ let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 let name = "settings"
 let set_default = false
-let is_menu_open = ref false
 let menu_width = 750
 let menu_height = 500
 let keybind_buttons = ref []
 let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
 let sound_map : (string, Raylib.Sound.t) Hashtbl.t = Hashtbl.create 10
+
+let load () =
+  sprite_map := Sprite.initialize_sprites "data/sprites/settingstatesprites.csv";
+  Hashtbl.add sound_map "button_unselect"
+    (Raylib.load_sound "data/sounds/button_unselect.wav")
 
 let init () =
   let locations =
@@ -26,13 +30,12 @@ let init () =
   let buttons =
     List.map (fun (x, y, w, h) -> Button.make_rect_button (x, y) w h) locations
   in
-  keybind_buttons := buttons;
-  sprite_map := Sprite.initialize_sprites "data/sprites/settingstatesprites.csv";
-  Hashtbl.add sound_map "button_unselect"
-    (Raylib.load_sound "data/sounds/button_unselect.wav")
+  keybind_buttons := buttons
 
 let settings_button =
   ref (Button.make_circle_button (60, Constants.height - 60) 50)
+
+let home_button = ref (Button.make_rect_button (675, 400) 300 100)
 
 let menu_nw_corner =
   ( (Constants.width / 2) - (menu_width / 2),
@@ -63,7 +66,10 @@ let update () =
     let my = get_mouse_y () in
     List.iteri
       (fun i button ->
-        if Button.check_click (mx, my) button then handle_click i)
+        if
+          is_mouse_button_pressed MouseButton.Left
+          && Button.check_click (mx, my) button
+        then handle_click i)
       !keybind_buttons;
     if Button.check_click (mx, my) !settings_button then (
       Raylib.play_sound (Hashtbl.find sound_map "button_unselect");
@@ -71,6 +77,7 @@ let update () =
       | Some 1 -> Some "title"
       | Some 0 -> Some "play"
       | _ -> None)
+    else if Button.check_click (mx, my) !home_button then Some "select"
     else None
   end
 
@@ -78,7 +85,12 @@ let draw_keybind_grid () =
   let open Raylib in
   let all_keys = Keybind.all_keybinds () in
   ignore
-    (List.map (fun button -> Button.draw button Color.orange) !keybind_buttons);
+    (List.map
+       (fun button ->
+         if Button.check_hover (get_mouse_x (), get_mouse_y ()) button then
+           Button.draw button (Color.create 230 145 0 255)
+         else Button.draw button Color.orange)
+       !keybind_buttons);
   ignore
     (List.mapi
        (fun i key ->
@@ -108,10 +120,16 @@ let render () =
     menu_height Color.gray;
   Button.draw !settings_button Color.gray;
   settings_sprite (get_mouse_x ()) (get_mouse_y ());
-  draw_text "Settings"
+  if Button.check_hover (get_mouse_x (), get_mouse_y ()) !home_button then
+    Button.draw !home_button Color.maroon
+  else Button.draw !home_button Color.red;
+  let is_waiting, _, _ = !waiting in
+  let text = if is_waiting then "Press a key" else "Settings" in
+  draw_text text
     ((Constants.width / 2) - 125)
     ((Constants.height / 2) - 200)
     60 Color.black;
+  draw_text "Home" 760 425 50 Color.black;
   draw_keybind_grid ()
 
 let reset () = ()

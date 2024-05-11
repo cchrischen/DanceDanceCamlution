@@ -21,3 +21,7 @@ val render : unit -> unit
 (** [render ()] draws a paused sign in the middle of the screen. *)
 
 val reset : unit -> unit
+(** [reset ()] resets the state to its initial state. *)
+
+val load : unit -> unit
+(** [load ()] loads the sprites for the pause state. *)
