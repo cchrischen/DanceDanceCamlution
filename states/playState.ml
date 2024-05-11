@@ -290,7 +290,7 @@ let render_col col index =
   ignore (handle_key_press col (List.nth raylib_key_buttons index))
 
 let settings_sprite mx my =
-  if Button.check_hover (mx, my) !settings_button then
+  if Button.overlap_detect (mx, my) !settings_button then
     Sprite.draw_sprite
       (Hashtbl.find !sprite_map "settings")
       1 10.

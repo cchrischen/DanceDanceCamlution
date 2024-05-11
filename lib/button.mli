@@ -13,9 +13,9 @@ val check_click : int * int -> t -> bool
 (** [check_click (mx,my) button] is whether the mouse has clicked within the
     button. *)
 
-val check_hover : int * int -> t -> bool
-(** [check_hover (mx,my) button] is whether the mouse is hovering over the
-    button. *)
+val overlap_detect : int * int -> t -> bool
+(** [overlap_detect (mx,my) button] calculates whether there is overlap between
+    mouse and button. Non-interface facing function unlike [check_hover] *)
 
 val draw : t -> Raylib.Color.t -> unit
 (** [draw button color] draws [button] with color [color]. *)
