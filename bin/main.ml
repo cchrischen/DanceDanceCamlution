@@ -34,9 +34,7 @@ let rec loop () =
             SM.reset ();
             SM.init ();
             SM.set_state "title"
-        | Some s ->
-            SM.set_state s;
-            SM.init ()
+
       end;
       loop ()
 
