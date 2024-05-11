@@ -1,14 +1,14 @@
-open DDC.Utils
-open DDC.Note
-open DDC.Beatmap
-open DDC.Sprite
-open DDC.StateMachine
+open Finalproject.Utils
+open Finalproject.Note
+open Finalproject.Beatmap
+open Finalproject.Sprite
+open Finalproject.StateMachine
 open OUnit2
 open Raylib
-open DDC.Constants
-open DDC.Column
-open DDC.Button
-open DDC.Keybind
+open Finalproject.Constants
+open Finalproject.Column
+open Finalproject.Button
+open Finalproject.Keybind
 
 let util_tests =
   "test suite for utils module "
