@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 open States
 
 module SM1 =
@@ -16,6 +16,7 @@ let init () =
   set_target_fps Constants.target_fps;
   init_audio_device ();
   Random.init 69420;
+  SM.load ();
   SM.init ()
 
 let rec loop () =

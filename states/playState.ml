@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 
 type t = string
 
@@ -53,6 +53,8 @@ let y_pos =
     |> Array.of_list
   in
   spread_y_positions Constants.num_columns
+
+let load () = ()
 
 let init () =
   match Option.get !buffer with

@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 
 type t = int
 
@@ -25,9 +25,11 @@ let set_default = false
 let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 
-let init () =
+let load () =
   sprite_map :=
     Sprite.initialize_sprites "data/sprites/musicselectscreensprites.csv"
+
+let init () = ()
 
 let update () =
   let files = Raylib.load_directory_files_ex directory ".mp3" false in

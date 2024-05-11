@@ -18,6 +18,10 @@ val update : unit -> string option
     play state. *)
 
 val render : unit -> unit
-(** [render ()] draws a the music selection menu in the middle of the screen. *)
+(** [render ()] draws the music selection menu in the middle of the screen. *)
 
 val reset : unit -> unit
+(** [reset ()] resets the state to its initial state.  *)
+
+val load : unit -> unit
+(** [load ()] loads the sprites for the music selection state.  *)

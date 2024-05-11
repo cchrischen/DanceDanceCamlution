@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 
 type t = int
 
@@ -18,3 +18,4 @@ let render () =
   draw_text "Paused" (Constants.width / 2) (Constants.height / 2) 40 Color.red
 
 let reset () = ()
+let load () = ()

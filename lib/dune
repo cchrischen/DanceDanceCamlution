@@ -1,6 +1,6 @@
 (library
  (inline_tests)
- (name finalproject)
+ (name DDC)
  (instrumentation
   (backend bisect_ppx))
  (libraries raylib batteries csv)

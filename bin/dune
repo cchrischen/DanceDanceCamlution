@@ -1,4 +1,4 @@
 (executable
- (public_name finalproject)
+ (public_name DDC)
  (name main)
- (libraries raylib finalproject states))
+ (libraries raylib DDC states))

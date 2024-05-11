@@ -15,9 +15,13 @@ val init : unit -> unit
 
 val update : unit -> string option
 (** [update ()] checks for keyboard input. This state can transition into the
-    play state. *)
+    music select state. *)
 
 val render : unit -> unit
 (** [render ()] draws the title screen *)
 
 val reset : unit -> unit
+(** [reset ()] resets the state to its initial state. *)
+
+val load : unit -> unit
+(** [load ()] loads the sprites for the title state. *)

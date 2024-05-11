@@ -1,14 +1,14 @@
-open Finalproject.Utils
-open Finalproject.Note
-open Finalproject.Beatmap
-open Finalproject.Sprite
-open Finalproject.StateMachine
+open DDC.Utils
+open DDC.Note
+open DDC.Beatmap
+open DDC.Sprite
+open DDC.StateMachine
 open OUnit2
 open Raylib
-open Finalproject.Constants
-open Finalproject.Column
-open Finalproject.Button
-open Finalproject.Keybind
+open DDC.Constants
+open DDC.Column
+open DDC.Button
+open DDC.Keybind
 
 let util_tests =
   "test suite for utils module "
@@ -375,6 +375,7 @@ module State1 : State with type t = int = struct
   let update () = Some "State 2"
   let render () = ()
   let reset () = ()
+  let load () = ()
 end
 
 module State2 : State = struct
@@ -388,6 +389,7 @@ module State2 : State = struct
   let update () = Some "State 3"
   let render () = ()
   let reset () = ()
+  let load () = ()
 end
 
 module State3 : State = struct
@@ -401,6 +403,7 @@ module State3 : State = struct
   let update () = Some "State 1"
   let render () = ()
   let reset () = ()
+  let load () = ()
 end
 
 module OneStateSM : StateMachine = AddState (EmptyStateMachine ()) (State1)

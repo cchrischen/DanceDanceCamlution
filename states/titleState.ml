@@ -1,4 +1,4 @@
-open Finalproject
+open DDC
 open Raylib
 
 type t = int
@@ -18,7 +18,7 @@ let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
 let set_default = true
 let sound_map : (string, Raylib.Sound.t) Hashtbl.t = Hashtbl.create 10
 
-let init () =
+let load () =
   sprite_map := Sprite.initialize_sprites "data/sprites/titlestatesprites.csv";
   Hashtbl.add sound_map "title_music"
     (Raylib.load_sound "data/music/newer_wave.mp3");
@@ -28,6 +28,7 @@ let init () =
   if (not !play_hit) && not !settings_hit then
     Raylib.play_sound (Hashtbl.find sound_map "title_music")
 
+let init () = ()
 let buffer = ref None
 let set_buffer (t : t) = buffer := Some t
 
