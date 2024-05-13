@@ -8,6 +8,7 @@ let name = "settings"
 let set_default = false
 let menu_width = 750
 let menu_height = 500
+let master_volume = ref 1.
 let keybind_buttons = ref []
 let sprite_map : (string, Sprite.t) Hashtbl.t ref = ref (Hashtbl.create 1)
 let sound_map : (string, Raylib.Sound.t) Hashtbl.t = Hashtbl.create 10
@@ -52,6 +53,7 @@ let handle_click index =
 
 let update () =
   let open Raylib in
+  set_master_volume !master_volume;
   let is_waiting, button, _ = !waiting in
   if is_waiting then begin
     let k = get_key_pressed () in
@@ -123,6 +125,13 @@ let render () =
   if Button.overlap_detect (get_mouse_x (), get_mouse_y ()) !home_button then
     Button.draw !home_button Color.maroon
   else Button.draw !home_button Color.red;
+  draw_text "Volume:" 675 266 30 Color.black;
+  let rect = Rectangle.create 675. 300. 200.0 40.0 in
+  let new_master_volume =
+    Raygui.slider rect ""
+      (Printf.sprintf "%2.2f" !master_volume)
+      !master_volume ~min:0. ~max:1.
+  in
   let is_waiting, _, _ = !waiting in
   let text = if is_waiting then "Press a key" else "Settings" in
   draw_text text
@@ -130,6 +139,7 @@ let render () =
     ((Constants.height / 2) - 200)
     60 Color.black;
   draw_text "Home" 760 425 50 Color.black;
-  draw_keybind_grid ()
+  draw_keybind_grid ();
+  master_volume := new_master_volume
 
 let reset () = ()
