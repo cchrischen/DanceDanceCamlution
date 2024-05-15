@@ -5,7 +5,7 @@ The respective OCaml and Python package installers, opam and pip, are assumed pr
     ```shell
     opam update
     opam upgrade
-    opam install raylib batteries raygui
+    opam install raylib batteries raygui csv
     ```
 2. Install the python packages.
     ```shell
