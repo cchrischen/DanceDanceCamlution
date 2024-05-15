@@ -9,14 +9,59 @@ open DDC.Constants
 open DDC.Column
 open DDC.Button
 open DDC.Keybind
+open QCheck2
+
+let list_end_matches_size c =
+  let list_util = make_list c in
+  let list_standard_end_number = c in
+  list_standard_end_number = List.nth list_util (c - 1)
+
+let t_list_creation =
+  QCheck.Test.make
+    (QCheck.make (QCheck.Gen.int_range 1 100))
+    list_end_matches_size
+
+let array_to_string_tester c =
+  let array_util = Array.make c 0 in
+  let string_array = array_to_string string_of_int array_util in
+  c + 4 = String.length string_array
+
+let t_array_to_string =
+  QCheck.Test.make
+    (QCheck.make (QCheck.Gen.int_range 1 100))
+    array_to_string_tester
+
+let distance_tester c =
+  let start_tuple = Gen.(generate ~n:2 small_int) in
+  let distance =
+    distance
+      (List.hd start_tuple, List.hd (List.tl start_tuple))
+      (c + List.hd start_tuple, c - List.hd (List.tl start_tuple))
+  in
+  let test_distance =
+    let distance_test_x = c + List.hd start_tuple - List.hd start_tuple in
+    let distance_test_y =
+      c - List.hd (List.tl start_tuple) - List.hd (List.tl start_tuple)
+    in
+    (distance_test_x * distance_test_x) + (distance_test_y * distance_test_y)
+    |> float_of_int |> sqrt
+  in
+  test_distance = distance
+
+let t_distance =
+  QCheck.Test.make (QCheck.make (QCheck.Gen.int_range 0 50)) distance_tester
+
+let ounit_rnd_test_list_size = QCheck_runner.to_ounit2_test t_list_creation
+let ounit_rnd_test_array_string = QCheck_runner.to_ounit2_test t_array_to_string
+let ounit_rnd_test_distance = QCheck_runner.to_ounit2_test t_distance
 
 let util_tests =
   "test suite for utils module "
   >::: [
          ( "list creation" >:: fun _ ->
-           assert_equal [ 1; 2; 3; 4; 5 ] (make_list 5) );
+           assert_equal [ 1; 2; 3; 4; 5; 6 ] (make_list 6) );
          ("list with one elem" >:: fun _ -> assert_equal [ 1 ] (make_list 1));
-         ( "list with precond violate" >:: fun _ ->
+         ( "list with precond violate of zero elems" >:: fun _ ->
            assert_raises (Failure "Illegal Argument") (fun () -> make_list 0) );
          ( "list with mapping" >:: fun _ ->
            assert_equal [ 5; 7; 8; 9 ]
@@ -36,6 +81,64 @@ let util_tests =
            assert_equal 5. (distance (1, 1) (4, 5)) );
          ( "distance test - between positive and negative points" >:: fun _ ->
            assert_equal 5. (distance (0, 0) (-3, -4)) );
+       ]
+
+let txt_to_array txt =
+  let lines = BatList.of_enum (BatFile.lines_of txt) in
+  let rec aux lines acc =
+    match lines with
+    | [] -> acc
+    | h :: t ->
+        let acc = Array.append acc [| float_of_string h |] in
+        aux t acc
+  in
+  aux lines [||]
+
+module type SongT = sig
+  type song = {
+    audio_source : Raylib.Music.t;
+    beatmap : float array;
+    mutable next_note_index : int;
+  }
+
+  (*val create_beatmap : string -> int*)
+  val init : string -> song
+  val is_on_next_note : song -> float -> bool
+  val inc_note : song -> unit
+  val get_index : song -> int
+end
+
+module GeneralSongTester (S : SongT) = struct
+  let tests =
+    [
+      ( "beatmap test" >:: fun _ ->
+        assert_equal
+          (txt_to_array "better-day.mp3")
+          (S.init "better-day.mp3").beatmap );
+      ( "check note_index incrementation p1-intialization" >:: fun _ ->
+        assert_equal 1 (S.init "better-day.mp3").next_note_index );
+      ( "check note_index incrementation p2-stepping" >:: fun _ ->
+        assert_equal 2
+          (let song = S.(init "better-day.mp3") in
+           let _ = S.inc_note song in
+           let _ = S.inc_note song in
+           S.get_index song) );
+      ( "check note accuracy step" >:: fun _ ->
+        assert_equal false
+          (let song = S.(init "better-day.mp3") in
+           S.is_on_next_note song 0.1) );
+    ]
+end
+
+module BeatMapTest = GeneralSongTester (Song)
+
+let beatmap_tests =
+  "test suite for notes module "
+  >::: [
+         ( "a converting beatmap txt to a list" >:: fun _ ->
+           assert_equal
+             (txt_to_array "beatmapTest.txt")
+             (read_beatmap_txt "beatmapTest.txt") );
        ]
 
 let sample_note = create_note 5. 5.
@@ -226,52 +329,61 @@ let button_tests =
            assert_equal (0, 0, 0, 0) (get_dims circ_button_zero) );
          ( "get dimensions circle test" >:: fun _ ->
            assert_equal (-5, -5, 10, 10) (get_dims circ_button) );
-         ( "overlap test with rectangle button  1 " >:: fun _ ->
+         ( "overlap test with rectangle button center test " >:: fun _ ->
            assert_equal true (overlap_detect (5, 5) rec_button) );
-         ( "overlap test with rectangle button iter 2 " >:: fun _ ->
-           assert_equal true (overlap_detect (6, 6) rec_button) );
-         ( "overlap test with rectangle button  3 - closer to edge " >:: fun _ ->
-           assert_equal true (overlap_detect (10, 10) rec_button) );
-         ( "overlap test with rectangle button  3 - mixed cords " >:: fun _ ->
+         ( "overlap test with rectangle button off-right QUAD 1 test"
+         >:: fun _ -> assert_equal true (overlap_detect (6, 6) rec_button) );
+         ( "overlap test with rectangle button  off right EDGE TEST "
+         >:: fun _ -> assert_equal true (overlap_detect (10, 10) rec_button) );
+         ( "overlap test with rectangle button QUAD 2 Test " >:: fun _ ->
            assert_equal true (overlap_detect (6, 10) rec_button) );
-         ( "overlap test with rectangle button  4 - edge testd " >:: fun _ ->
+         ( "overlap test with rectangle button OPP EDGE " >:: fun _ ->
            assert_equal true (overlap_detect (15, 15) rec_button) );
-         ( "overlap test with rectangle button 2 " >:: fun _ ->
+         ( "overlap test with rectangle button BOTTOM TEST " >:: fun _ ->
            assert_equal false (overlap_detect (1, 1) rec_button) );
-         ( "overlap test with rectangle button 3 " >:: fun _ ->
-           assert_equal false (overlap_detect (-1, -1) rec_button) );
-         ( "overlap test with rectangle button 4 " >:: fun _ ->
+         ( "overlap test with rectangle button QUAD 3 TEST - OUTSIDE BOUND "
+         >:: fun _ -> assert_equal false (overlap_detect (-1, -1) rec_button) );
+         ( "overlap test with rectangle button OUTSIDE TEST " >:: fun _ ->
            assert_equal false (overlap_detect (2, 2) rec_button) );
-         ( "overlap p1" >:: fun _ ->
+         ( "overlap FALSE on RECTANGLE " >:: fun _ ->
            assert_equal false (overlap_detect (16, 16) rec_button) );
-         ( "overlap p2 neg" >:: fun _ ->
+         ( "overlap NEG CORDS OUTSIDE" >:: fun _ ->
            assert_equal false (overlap_detect (-16, 16) rec_button) );
-         ( "overlap test with rectangle button - false" >:: fun _ ->
+         ( "overlap test with OUTSIDE ON QUAD 2" >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) rec_button) );
-         ( "overlap test with rectangle button - false" >:: fun _ ->
+         ( "overlap test with rectangle button QUAD 4" >:: fun _ ->
            assert_equal false (overlap_detect (30, 20) rec_button) );
-         ( "overlap test with rectangle button - zero case" >:: fun _ ->
+         ( "overlap test with rectangle button NON_EXISTENT BUTTON\n\
+           \         - CHECK BUTTON TEST NOT WINDOW OVERLAP"
+         >:: fun _ ->
            assert_equal false (overlap_detect (15, 15) rec_button_zero) );
-         ( "overlap test with circle button" >:: fun _ ->
+         ( "overlap test with CIRCLE button" >:: fun _ ->
            assert_equal true (overlap_detect (5, 5) circ_button) );
-         ( "overlap test with circle button iter 2" >:: fun _ ->
+         ( "overlap test with circle button OFF_RIGHT CIRCLE" >:: fun _ ->
            assert_equal true (overlap_detect (6, 6) circ_button) );
-         ( "overlap test with circle button iter 3 - closer to edge" >:: fun _ ->
+         ( "overlap test with circle button OFF_LEFT CIRCLE" >:: fun _ ->
            assert_equal true (overlap_detect (7, 8) circ_button) );
-         ( "overlap test with circle button - edge case" >:: fun _ ->
+         ( "overlap test with button CIRCLE BUTTON EDGE" >:: fun _ ->
            assert_equal true (overlap_detect (12, 12) circ_button) );
-         ( "overlap test with circle button - edge case mixed true" >:: fun _ ->
+         ( "overlap test with button CIRCLE BUTTON TRUE NEAR EDGE" >:: fun _ ->
            assert_equal true (overlap_detect (10, 12) circ_button) );
-         ( "overlap test with circle button - edge case mixed false" >:: fun _ ->
-           assert_equal false (overlap_detect (13, 12) circ_button) );
-         ( "overlap test with circle button - edge case" >:: fun _ ->
-           assert_equal false (overlap_detect (15, 15) circ_button) );
-         ( "overlap test with circle button - false" >:: fun _ ->
+         ( "overlap test with circle button OUTSIDE EDGE CASE HIT FALSE"
+         >:: fun _ -> assert_equal false (overlap_detect (13, 12) circ_button)
+         );
+         ( "overlap test with circle button OUTSIDE EDGE CASE HIT FALSE \
+            OPPOSITE SIDE"
+         >:: fun _ -> assert_equal false (overlap_detect (15, 15) circ_button)
+         );
+         ( "overlap test with circle button WAY OUTSIDE" >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) circ_button) );
-         ( "overlap test with rectangle button - zero case" >:: fun _ ->
+         ( "overlap test with rectangle button NON_EXISTENT BUTTON\n\
+           \         - CHECK BUTTON TEST NOT WINDOW"
+         >:: fun _ ->
            assert_equal false (overlap_detect (15, 15) circ_button_zero) );
-         ( "overlap test with rectangle button - zero case" >:: fun _ ->
-           assert_equal false (overlap_detect (20, 20) circ_button) );
+         ( "overlap test with rectangle button NON_EXISTENT BUTTON\n\
+           \         - CHECK BUTTON TEST NOT WINDOW EDGE"
+         >:: fun _ ->
+           assert_equal false (overlap_detect (20, 20) circ_button_zero) );
        ]
 
 let key1 = BUTTON1
@@ -349,62 +461,6 @@ let keybind_tests =
               raylib_to_keybind Raylib.Key.Q) );
        ]
 
-let txt_to_array txt =
-  let lines = BatList.of_enum (BatFile.lines_of txt) in
-  let rec aux lines acc =
-    match lines with
-    | [] -> acc
-    | h :: t ->
-        let acc = Array.append acc [| float_of_string h |] in
-        aux t acc
-  in
-  aux lines [||]
-
-module type SongT = sig
-  type song = {
-    audio_source : Raylib.Music.t;
-    beatmap : float array;
-    mutable next_note_index : int;
-  }
-
-  val create_beatmap : string -> int
-  val init : string -> song
-  val is_on_next_note : song -> float -> bool
-  val inc_note : song -> unit
-  val get_index : song -> int
-end
-
-module GeneralSongTester (S : SongT) = struct
-  let tests =
-    [
-      ( "beatmap test" >:: fun _ ->
-        assert_equal
-          (txt_to_array "better-day.mp3")
-          (S.init "better-day.mp3").beatmap );
-      ( "check note_index incrementation p1-intialization" >:: fun _ ->
-        assert_equal 1 (S.init "better-day.mp3").next_note_index );
-      ( "check note_index incrementation p2-stepping" >:: fun _ ->
-        assert_equal 2
-          (let song = S.(init "better-day.mp3") in
-           let _ = S.inc_note song in
-           let _ = S.inc_note song in
-           S.get_index song) );
-      ( "check note accuracy step" >:: fun _ ->
-        assert_equal false
-          (let song = S.(init "better-day.mp3") in
-           S.is_on_next_note song 0.1) );
-    ]
-end
-
-let beatmap_tests =
-  "test suite for notes module "
-  >::: [
-         ( "a converting beatmap txt to a list" >:: fun _ ->
-           assert_equal
-             (txt_to_array "beatmapTest.txt")
-             (read_beatmap_txt "beatmapTest.txt") );
-       ]
-
 let sprite_tests =
   "test suite for sprites module "
   >::: [
@@ -420,32 +476,47 @@ let sprite_tests =
              (Rectangle.y (Array.get (to_array (create_sprites 10 10 1 5)) 0))
          );
          ( "frame rate check" >:: fun _ ->
-           assert_equal 10
-             (num_frames
-                (generate_sprite 10 10 10 5 "test/titlescreen_test.png")) );
+           assert_equal 10 (num_frames (generate_sprite 10 10 10 5 "")) );
          ( "get texture check" >:: fun _ ->
            assert_equal
-             (Texture2D.height (initialize_sprite "test/titlescreen_test.png"))
-             (Texture2D.height
-                (texture
-                   (generate_sprite 10 10 10 5 "test/titlescreen_test.png"))) );
+             (Texture2D.height (initialize_sprite ""))
+             (Texture2D.height (texture (generate_sprite 10 10 10 5 ""))) );
          ( "get sprite_sheet check" >:: fun _ ->
            assert_equal
              (Array.length (create_sprites 10 10 10 5))
-             (Array.length
-                (sprite_sheet
-                   (generate_sprite 10 10 10 5 "test/titlescreen_test.png"))) );
-         ( "initialzing hashtable sprite check" >:: fun _ ->
-           assert_equal 2
+             (Array.length (sprite_sheet (generate_sprite 10 10 10 5 ""))) );
+         ( "initialzing hashtable sprite check - first sprite frames check"
+         >:: fun _ ->
+           assert_equal 14
              (Array.length
                 (sprite_sheet
                    (Hashtbl.find
-                      (initialize_sprites "test/testsprites.csv")
+                      (initialize_sprites "testsprites.csv")
                       (let arr =
-                         Array.of_list
-                           (List.tl (Csv.load "test/testsprites.csv"))
+                         Array.of_list (List.tl (Csv.load "testsprites.csv"))
                        in
                        List.nth arr.(0) 0)))) );
+         ( "initialzing hashtable sprite check - second sprite frames check"
+         >:: fun _ ->
+           assert_equal 1
+             (Array.length
+                (sprite_sheet
+                   (Hashtbl.find
+                      (initialize_sprites "testsprites.csv")
+                      (let arr =
+                         Array.of_list (List.tl (Csv.load "testsprites.csv"))
+                       in
+                       List.nth arr.(1) 0)))) );
+         ( "initialzing hashtable with empty sprite check" >:: fun _ ->
+           assert_raises (Invalid_argument "index out of bounds") (fun () ->
+               Array.length
+                 (sprite_sheet
+                    (Hashtbl.find
+                       (initialize_sprites "empty.csv")
+                       (let arr =
+                          Array.of_list (List.tl (Csv.load "empty.csv"))
+                        in
+                        List.nth arr.(0) 0)))) );
        ]
 
 module EmptySM = EmptyStateMachine ()
@@ -608,8 +679,6 @@ let multi_state_state_machine_tests =
               ThreeStateSM.get_state ()) );
        ]
 
-module BeatMapTest = GeneralSongTester (Song)
-
 let mod_tests = List.flatten []
 let mod_suite = "module operations test suite" >::: mod_tests
 
@@ -626,6 +695,9 @@ let suite =
          empty_statemachine_tests;
          one_state_state_machine_tests;
          multi_state_state_machine_tests;
+         ounit_rnd_test_list_size;
+         ounit_rnd_test_array_string;
+         ounit_rnd_test_distance;
        ]
 
 let _ = run_test_tt_main suite

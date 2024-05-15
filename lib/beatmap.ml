@@ -7,13 +7,6 @@ let read_beatmap_txt path =
   in
   Array.of_list (List.filteri (fun i _ -> i mod Constants.diff = 0) beatmap_lst)
 
-let rec print_float_list = function
-  | [] -> print_endline ""
-  | h :: t ->
-      print_float h;
-      print_endline "";
-      print_float_list t
-
 module Song = struct
   type song = {
     audio_source : Raylib.Music.t;
