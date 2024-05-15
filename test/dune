@@ -2,4 +2,4 @@
  (name test_finalproject)
  (libraries DDC ounit2 qcheck raylib)
  (deps
-  (glob_files *.mp3)))
+  (glob_files *.csv)))
