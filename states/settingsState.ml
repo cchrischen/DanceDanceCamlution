@@ -79,7 +79,7 @@ let update () =
       | Some 1 -> Some "title"
       | Some 0 -> Some "play"
       | _ -> None)
-    else if Button.check_click (mx, my) !home_button then Some "select"
+    else if Button.check_click (mx, my) !home_button then Some "reset"
     else None
   end
 
@@ -122,9 +122,7 @@ let render () =
     menu_height Color.gray;
   Button.draw !settings_button Color.gray;
   settings_sprite (get_mouse_x ()) (get_mouse_y ());
-  if Button.overlap_detect (get_mouse_x (), get_mouse_y ()) !home_button then
-    Button.draw !home_button Color.maroon
-  else Button.draw !home_button Color.red;
+
   draw_text "Volume:" 675 266 30 Color.black;
   let rect = Rectangle.create 675. 300. 200.0 40.0 in
   let new_master_volume =
@@ -138,7 +136,12 @@ let render () =
     ((Constants.width / 2) - 125)
     ((Constants.height / 2) - 200)
     60 Color.black;
-  draw_text "Home" 760 425 50 Color.black;
+  if !buffer = Some 0 then begin
+    if Button.overlap_detect (get_mouse_x (), get_mouse_y ()) !home_button then
+      Button.draw !home_button Color.maroon
+    else Button.draw !home_button Color.red;
+    draw_text "Exit Map" 715 427 50 Color.black
+  end;
   draw_keybind_grid ();
   master_volume := new_master_volume
 

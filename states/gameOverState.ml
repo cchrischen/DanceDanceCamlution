@@ -28,11 +28,11 @@ let load () =
 
 let init () =
   match snd (Option.get !buffer) with
-  | x when x >= 0.9 -> grade := "S"
-  | x when x >= 0.8 -> grade := "A"
-  | x when x >= 0.7 -> grade := "B"
-  | x when x >= 0.6 -> grade := "C"
-  | x when x >= 0.5 -> grade := "D"
+  | x when x >= 0.95 -> grade := "S"
+  | x when x >= 0.9 -> grade := "A"
+  | x when x >= 0.8 -> grade := "B"
+  | x when x >= 0.7 -> grade := "C"
+  | x when x >= 0.6 -> grade := "D"
   | _ -> grade := "F"
 
 let set_buffer (t : t) = buffer := Some t

@@ -5,7 +5,8 @@ let read_beatmap_txt path =
   let beatmap_lst =
     List.rev (Enum.fold (fun acc x -> float_of_string x :: acc) [] file_lines)
   in
-  Array.of_list (List.filteri (fun i _ -> i mod Constants.diff = 0) beatmap_lst)
+  Array.of_list
+    (List.filteri (fun i _ -> i mod !Constants.diff = 0) beatmap_lst)
 
 let rec print_float_list = function
   | [] -> print_endline ""
@@ -47,7 +48,7 @@ module Song = struct
     if s.next_note_index <> Array.length s.beatmap then
       let onset_next_note = Array.get s.beatmap s.next_note_index in
       let time_in_song = Raylib.get_music_time_played s.audio_source in
-      Float.abs (time_in_song -. offset -. onset_next_note) < 1.
+      Float.abs (time_in_song -. onset_next_note) < offset
     else
       let _ = if Constants.repeat_song then reset_note s else () in
       false
