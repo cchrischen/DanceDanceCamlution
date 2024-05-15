@@ -101,6 +101,5 @@ let render () =
   play_button_logic (get_mouse_x ()) (get_mouse_y ()) MouseButton.Left
 
 let reset () =
-  play_hit := true;
   sprite_map := Hashtbl.create 1;
   buffer := None
