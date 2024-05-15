@@ -34,10 +34,12 @@ let rec loop () =
         | Some "reset" ->
             SM.reset ();
             SM.init ();
+            SM.load ();
             SM.set_state "select"
         | Some s ->
             SM.set_state s;
-            SM.init ()
+            SM.init ();
+            SM.load ()
       end;
       loop ()
 

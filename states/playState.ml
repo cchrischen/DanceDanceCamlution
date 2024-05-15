@@ -20,10 +20,10 @@ let key_binding_map =
   let rec add_keys acc = function
     | [] -> empty
     | key :: t ->
-        Hashtbl.add empty key ("K" ^ string_of_int acc);
+        Hashtbl.add empty key acc;
         add_keys (acc + 1) t
   in
-  add_keys 1 (Keybind.play_keybinds ())
+  add_keys 0 (Keybind.play_keybinds ())
 
 let settings_button =
   ref (Button.make_circle_button (60, Constants.height - 60) 50)
@@ -110,24 +110,9 @@ let handle_key_press col key =
   let counter_frames = Hashtbl.find !sprite_map "key_counter" in
   let button_frames = Hashtbl.find !sprite_map "button_press" in
   if is_key_down key then begin
-    (match Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key) with
-    | "K1" ->
-        Sprite.draw_sprite counter_frames 1
-          (float_of_int (Constants.width - 80))
-          y_pos.(0)
-    | "K2" ->
-        Sprite.draw_sprite counter_frames 1
-          (float_of_int (Constants.width - 80))
-          y_pos.(1)
-    | "K3" ->
-        Sprite.draw_sprite counter_frames 1
-          (float_of_int (Constants.width - 80))
-          y_pos.(2)
-    | "K4" ->
-        Sprite.draw_sprite counter_frames 1
-          (float_of_int (Constants.width - 80))
-          y_pos.(3)
-    | _ -> ());
+    Sprite.draw_sprite counter_frames 1
+      (float_of_int (Constants.width - 80))
+      y_pos.(Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key));
     draw_rectangle_rec button Constants.holding_button_color;
 
     if !button_frame_num < Sprite.num_frames button_frames then begin
@@ -181,12 +166,8 @@ let handle_key_press col key =
     button_frame_num := 0
   end;
   if is_key_pressed key then begin
-    match Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key) with
-    | "K1" -> counter_array.(0) <- counter_array.(0) + 1
-    | "K2" -> counter_array.(1) <- counter_array.(1) + 1
-    | "K3" -> counter_array.(2) <- counter_array.(2) + 1
-    | "K4" -> counter_array.(3) <- counter_array.(3) + 1
-    | _ -> ()
+    let index = Hashtbl.find key_binding_map (Keybind.raylib_to_keybind key) in
+    counter_array.(index) <- counter_array.(index) + 1
   end
 
 let draw_key_counters () =
@@ -263,7 +244,7 @@ let draw_combo_and_score () =
   draw_text
     ("Score: " ^ string_of_int !score)
     ((get_screen_width () * 16 / 20)
-    - (String.length (string_of_int !score) * (get_screen_width () / 200)))
+    - (String.length (string_of_int !score) * (get_screen_width () / 100)))
     20 40 Color.lightgray
 
 let render_col col index =

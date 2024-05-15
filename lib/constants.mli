@@ -44,7 +44,7 @@ val offset : float
     [Note.create_note] which I assume is the number of frames (60 per seconds)
     for the note to reach the hitbox. [offset = 1/time * 60.] *)
 
-val diff : int
+val diff : int ref
 (** [diff] is the difficulty of the game. It means the frequency with which the
     notes in the beatmap is read. [diff = 1] means every note in beatmap is read
     while [diff = 3] means one in three notes are read. *)

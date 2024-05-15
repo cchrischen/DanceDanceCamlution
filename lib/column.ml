@@ -54,8 +54,6 @@ let key_pressed (col : t) =
       /. (note |> Note.get_sprite |> Rectangle.height)
     in
     begin
-      let hit = load_sound "data/sounds/hit_note.wav" in
-      play_sound hit;
       Note.hit note;
       fst col := remove_from_list (get_notes col) note_index
     end;
