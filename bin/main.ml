@@ -1,3 +1,6 @@
+(* @author Chris Chen (cc2785), Nam Anh Dang (nd433), Shubham Mohole (sam588),
+   Daniel Xie (dyx2), Rishi Yennu (rry9) *)
+
 open DDC
 open States
 
@@ -34,12 +37,10 @@ let rec loop () =
         | Some "reset" ->
             SM.reset ();
             SM.init ();
-            SM.load ();
             SM.set_state "select"
         | Some s ->
             SM.set_state s;
-            SM.init ();
-            SM.load ()
+            SM.init ()
       end;
       loop ()
 

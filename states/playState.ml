@@ -54,7 +54,14 @@ let y_pos =
   in
   spread_y_positions Constants.num_columns
 
-let load () = ()
+let load () =
+  sprite_map := Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
+  Hashtbl.add sound_map "hit_sound"
+    (Raylib.load_sound "data/sounds/hit_sound.wav");
+  Hashtbl.add sound_map "hit_note"
+    (Raylib.load_sound "data/sounds/hit_note.wav");
+  Hashtbl.add sound_map "start_game"
+    (Raylib.load_sound "data/sounds/start_game.wav")
 
 let init () =
   match Option.get !buffer with
@@ -62,14 +69,6 @@ let init () =
   | _ ->
       Random.init 69420;
       music := Some (Beatmap.Song.init (Option.get !buffer));
-      sprite_map :=
-        Sprite.initialize_sprites "data/sprites/playstatesprites.csv";
-      Hashtbl.add sound_map "hit_sound"
-        (Raylib.load_sound "data/sounds/hit_sound.wav");
-      Hashtbl.add sound_map "hit_note"
-        (Raylib.load_sound "data/sounds/hit_note.wav");
-      Hashtbl.add sound_map "start_game"
-        (Raylib.load_sound "data/sounds/start_game.wav");
       set_buffer "test/better-day.mp3"
 
 let reset () =
@@ -84,7 +83,6 @@ let reset () =
   counter_array.(2) <- 0;
   counter_array.(3) <- 0;
   button_frame_num := 0;
-  sprite_map := Hashtbl.create 1;
   time := 0
 
 let draw_key_counter_text () =
