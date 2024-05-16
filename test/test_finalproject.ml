@@ -92,7 +92,6 @@ module type SongT = sig
   }
 
   val init : string -> song
-  val is_on_next_note : song -> float -> bool
   val inc_note : song -> unit
   val get_index : song -> int
 end
@@ -120,26 +119,30 @@ module GeneralBeatmapTester (S : SongT) = struct
                |]
                (read_beatmap_txt "beatmapTest.txt") );
            ( "check 0 for get initial index of song" >:: fun _ ->
-             assert_equal 0 (S.get_index (S.init "better-day.mp3")) );
+             assert_equal 0
+               (S.get_index
+                  (Raylib.init_audio_device ();
+                   S.init "better-day.mp3")) );
            ( "check that song.beatmap matches read_beatmap_txt" >:: fun _ ->
-             assert_equal (S.init "better-day.mp3").beatmap
+             assert_equal
+               (Raylib.init_audio_device ();
+                S.init "better-day.mp3")
+                 .beatmap
                (Array.filter
                   (fun x -> x > DDC.Constants.offset)
                   (read_beatmap_txt "better-day.beatmap.txt")) );
            ( "check next_note_index incrementation" >:: fun _ ->
+             Raylib.init_audio_device ();
              let song = S.init "better-day.mp3" in
              let _ = S.inc_note song in
              assert_equal 1 song.next_note_index );
            ( "check get_index incrementation" >:: fun _ ->
              assert_equal 2
-               (let song = S.(init "better-day.mp3") in
+               (Raylib.init_audio_device ();
+                let song = S.(init "better-day.mp3") in
                 let _ = S.inc_note song in
                 let _ = S.inc_note song in
                 S.get_index song) );
-           ( "check note accuracy step" >:: fun _ ->
-             assert_equal false
-               (let song = S.(init "better-day.mp3") in
-                S.is_on_next_note song 0.1) );
          ]
 end
 
