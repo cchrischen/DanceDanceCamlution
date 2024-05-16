@@ -74,7 +74,19 @@ let initialize_sprites (file : string) =
   sprite_table
 
 let initialize_sprites_test =
-  let sprite_matrix : string list list = [ [ "1" ]; [ "2" ]; [ "3" ] ] in
+  let sprite_matrix : string list list =
+    [
+      [ "1" ];
+      [ "2" ];
+      [ "3" ];
+      [ "4" ];
+      [ "5" ];
+      [ "6" ];
+      [ "7" ];
+      [ "8" ];
+      [ "9" ];
+    ]
+  in
   let sprite_table = Hashtbl.create 10 in
   ignore (List.map (initialize_sprites_aux_test sprite_table) sprite_matrix);
   sprite_table
