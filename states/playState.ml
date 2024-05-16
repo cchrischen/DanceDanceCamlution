@@ -1,4 +1,5 @@
 open DDC
+open Raylib
 
 type t = string
 
@@ -85,6 +86,13 @@ let reset () =
   button_frame_num := 0;
   time := 0
 
+let calc_acc (acc : Note.accuracy) =
+  match acc with
+  | Miss -> 0.
+  | Perfect -> 1.
+  | Good -> 0.5
+  | Great -> 0.75
+
 let draw_key_counter_text () =
   ignore
     (List.map
@@ -102,8 +110,26 @@ let draw_key_counter_text () =
            20 Raylib.Color.white)
        (Utils.make_list 4))
 
+let draw_popups (acc : Note.accuracy) =
+  match acc with
+  | Miss -> ()
+  | Perfect ->
+      draw_text "Perfect!"
+        ((Constants.width / 2) - 200)
+        ((Constants.height / 2) - 50)
+        100 Color.gold
+  | Good ->
+      draw_text "Meh!"
+        ((Constants.width / 2) - 125)
+        ((Constants.height / 2) - 50)
+        100 Color.orange
+  | Great ->
+      draw_text "Great!"
+        ((Constants.width / 2) - 155)
+        ((Constants.height / 2) - 50)
+        100 Color.green
+
 let handle_key_press col key =
-  let open Raylib in
   let button = Column.get_button col in
   let counter_frames = Hashtbl.find !sprite_map "key_counter" in
   let button_frames = Hashtbl.find !sprite_map "button_press" in
@@ -129,33 +155,11 @@ let handle_key_press col key =
         play_sound (Hashtbl.find sound_map "hit_sound") (* combo := 0 *)
       end
       else begin
-        (match acc with
-        | Miss -> ()
-        | Perfect ->
-            draw_text "Perfect!"
-              ((Constants.width / 2) - 200)
-              ((Constants.height / 2) - 50)
-              100 Color.gold
-        | Good ->
-            draw_text "Meh!"
-              ((Constants.width / 2) - 125)
-              ((Constants.height / 2) - 50)
-              100 Color.orange
-        | Great ->
-            draw_text "Great!"
-              ((Constants.width / 2) - 155)
-              ((Constants.height / 2) - 50)
-              100 Color.green);
+        draw_popups acc;
         score := !score + (acc |> Note.calc_score !combo);
         combo := !combo + 1;
-        let calc_acc =
-          match acc with
-          | Miss -> 0.
-          | Perfect -> 1.
-          | Good -> 0.5
-          | Great -> 0.75
-        in
-        notes_hit := !notes_hit +. calc_acc;
+        let acc_num = calc_acc acc in
+        notes_hit := !notes_hit +. acc_num;
         play_sound (Hashtbl.find sound_map "hit_note")
       end
   end;

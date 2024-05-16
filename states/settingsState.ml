@@ -1,4 +1,5 @@
 open DDC
+open Raylib
 
 type t = int
 
@@ -115,14 +116,9 @@ let settings_sprite mx my =
       0 10.
       (float_of_int (Constants.height - 110))
 
-let render () =
-  let open Raylib in
-  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
-  draw_rectangle (fst menu_nw_corner) (snd menu_nw_corner) menu_width
-    menu_height Color.gray;
+let gui_elements () =
   Button.draw !settings_button Color.gray;
   settings_sprite (get_mouse_x ()) (get_mouse_y ());
-
   draw_text "Volume:" 675 266 30 Color.black;
   let rect = Rectangle.create 675. 300. 200.0 40.0 in
   let new_master_volume =
@@ -142,7 +138,13 @@ let render () =
     else Button.draw !home_button Color.red;
     draw_text "Exit Map" 715 427 50 Color.black
   end;
-  draw_keybind_grid ();
   master_volume := new_master_volume
+
+let render () =
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
+  draw_rectangle (fst menu_nw_corner) (snd menu_nw_corner) menu_width
+    menu_height Color.gray;
+  gui_elements ();
+  draw_keybind_grid ()
 
 let reset () = ()

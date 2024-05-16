@@ -70,7 +70,16 @@ let update () =
     Some "play"
 
 let difficulty_select () =
-  draw_text "Select Difficulty:" 40 210 30 Color.raywhite;
+  draw_text "Select Difficulty:" 30 210 35 Color.raywhite;
+  draw_text "Current Difficulty:" 45 250 20 Color.raywhite;
+  let text, color =
+    match !Constants.diff with
+    | 1 -> ("Hard", Color.red)
+    | 2 -> ("Medium", Color.orange)
+    | 3 -> ("Easy", Color.green)
+    | _ -> ("None", Color.black)
+  in
+  draw_text text 240 250 20 color;
   let easy = button (Rectangle.create 120. 300.0 100. 50.0) "Easy" in
   let medium = button (Rectangle.create 120. 400.0 100. 50.0) "Medium" in
   let hard = button (Rectangle.create 120. 500.0 100. 50.0) "Hard" in
@@ -78,11 +87,7 @@ let difficulty_select () =
   if medium then Constants.diff := 2;
   if hard then Constants.diff := 1
 
-let render () =
-  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
-  draw_text "Song Select" ((Constants.width / 2) - 300) 50 100 Color.raywhite;
-  difficulty_select ();
-  home_button_logic ();
+let buttons () =
   let rect =
     Rectangle.create
       ((float_of_int Constants.width /. 2.) -. 300.)
@@ -104,8 +109,14 @@ let render () =
   gui_state.is_open <- is_open;
   gui_state.list_view_ex_index <- list_view_ex_index;
   gui_state.list_view_ex_focus <- list_view_ex_focus;
-  gui_state.list_view_ex_active <- list_view_ex_active;
-  ()
+  gui_state.list_view_ex_active <- list_view_ex_active
+
+let render () =
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
+  draw_text "Song Select" ((Constants.width / 2) - 300) 50 100 Color.raywhite;
+  difficulty_select ();
+  home_button_logic ();
+  buttons ()
 
 let reset () =
   gui_state.list_view_ex_index <- 0;

@@ -36,38 +36,43 @@ let init () =
   | _ -> grade := "F"
 
 let set_buffer (t : t) = buffer := Some t
-let update () = if !return_home_hit then Some "reset" else None
+
+let update () =
+  match !exit_hit with
+  | true -> Some "close"
+  | false -> if !return_home_hit then Some "reset" else None
+
 let reset () = ()
 
-let render () =
-  match !exit_hit with
-  | true -> Raylib.close_window ()
-  | false ->
-      Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
-      Raylib.draw_text
-        ("Score: " ^ string_of_int (fst (Option.get !buffer)))
-        (450
-        - String.length (string_of_int (fst (Option.get !buffer)))
-          * (Constants.width / 50))
-        50 100 Constants.holding_button_color;
+let buttons () =
+  let open Raygui in
+  let rect_1 = Raylib.Rectangle.create return_home_x return_home_y 200. 50. in
+  let rect_2 =
+    Raylib.Rectangle.create return_home_x (return_home_y +. 100.) 200. 50.
+  in
+  let return_home = button rect_1 "Select Screen" in
+  let exit = button rect_2 "Exit" in
+  return_home_hit := return_home;
+  exit_hit := exit
 
-      Raylib.draw_text
-        ("Accuracy: "
-        ^ Printf.sprintf "%.2f" (snd (Option.get !buffer) *. 100.)
-        ^ "%")
-        250 200 100 Constants.holding_button_color;
-      Raylib.draw_text !grade
-        ((Constants.width / 2) - 25)
-        350 100
-        (snd (List.hd (List.filter (fun x -> fst x = !grade) color_map)));
-      let open Raygui in
-      let rect_1 =
-        Raylib.Rectangle.create return_home_x return_home_y 200. 50.
-      in
-      let rect_2 =
-        Raylib.Rectangle.create return_home_x (return_home_y +. 100.) 200. 50.
-      in
-      let return_home = button rect_1 "Select Screen" in
-      let exit = button rect_2 "Exit" in
-      return_home_hit := return_home;
-      exit_hit := exit
+let text () =
+  Raylib.draw_text
+    ("Score: " ^ string_of_int (fst (Option.get !buffer)))
+    (450
+    - String.length (string_of_int (fst (Option.get !buffer)))
+      * (Constants.width / 50))
+    50 100 Constants.holding_button_color;
+  Raylib.draw_text
+    ("Accuracy: "
+    ^ Printf.sprintf "%.2f" (snd (Option.get !buffer) *. 100.)
+    ^ "%")
+    250 200 100 Constants.holding_button_color;
+  Raylib.draw_text !grade
+    ((Constants.width / 2) - 25)
+    350 100
+    (snd (List.hd (List.filter (fun x -> fst x = !grade) color_map)))
+
+let render () =
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
+  text ();
+  buttons ()
