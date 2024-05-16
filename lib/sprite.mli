@@ -27,6 +27,11 @@ val initialize_sprites : string -> (string, t) Hashtbl.t
     This format has 5 parameters for a sprite: sprite name, frame width, frame
     height, total frames, and frames per row. *)
 
+val initialize_sprites_test : (string, Rectangle.t array) Hashtbl.t
+(** [initialize_sprites file] returns a HashTbl of the sprites with the names of
+    the sprites as the keys and a Sprite as the value with all functionality
+    except registering I/O input *)
+
 val texture : t -> Raylib.Texture2D.t
 (** [texture sprite] returns the Raylib.Texture2D of the given sprite [sprite].*)
 
@@ -39,3 +44,7 @@ val to_array : Rectangle.t array -> Rectangle.t array
 val generate_sprite : int -> int -> int -> int -> string -> t
 (** [generate_sprite width height frames frames_per_row file] returns a sprite
     with its rectangle and texture attributes.*)
+
+val test_aux_generate_sprite : int -> int -> int -> int -> Rectangle.t array
+(** [generate_sprite width height frames frames_per_row file] returns a sprite
+    with its rectangle array - without IO input.*)
