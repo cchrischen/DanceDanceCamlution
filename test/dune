@@ -1,5 +1,7 @@
 (test
  (name test_finalproject)
- (libraries DDC ounit2 qcheck raylib)
+ (libraries DDC batteries ounit2 qcheck raylib)
  (deps
-  (glob_files *.csv)))
+  (glob_files *.csv)
+  (glob_files *.txt)
+  (glob_files *.mp3)))

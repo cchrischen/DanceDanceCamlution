@@ -1,5 +1,11 @@
+<<<<<<< code-refactoring
 (* @authors Chris Chen (cc2785) Daniel Xie (dyx2) Nam Anh Dang (nd433) Shubham
    Mohole (sam588) Rishi Yennu (rry9) *)
+=======
+(* @author Chris Chen (cc2785), Nam Anh Dang (nd433), Shubham Mohole (sam588),
+   Daniel Xie (dyx2), Rishi Yennu (rry9) *)
+
+>>>>>>> main
 open DDC
 open States
 open Raylib
@@ -36,13 +42,11 @@ let rec loop () =
         | Some "reset" ->
             SM.reset ();
             SM.init ();
-            SM.load ();
             SM.set_state "select"
         | Some "close" -> close_window ()
         | Some s ->
             SM.set_state s;
-            SM.init ();
-            SM.load ()
+            SM.init ()
       end;
       loop ()
 

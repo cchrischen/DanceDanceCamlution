@@ -11,7 +11,7 @@ A combo, representing your streak of notes hit, is indicated on the bottom right
 At the end of a song, your accuracy of notes hit is displayed.
 
 ## Adjustments
-* If you find the difficulty too hard, you can adjust it in the music select menu!
+* If you find the difficulty too hard, you can adjust it in the music select menu.
 * The four keybinds for the columns and the pause button can be changed to any alphanumeric keyboard key. Do not bind two buttons to the same key.
 * If you want to play DanceDanceCamluation with any audio file, you can! Just place the file in `data/music`.
 
