@@ -762,10 +762,6 @@ let reset_test =
                   | Some s -> ThreeStateSMCopy2.set_state s
                 done
               in
-              let _ =
-                Printf.printf "%d %d %d " !check_buff_1 !check_buff_2
-                  !check_buff_3
-              in
               (!check_buff_1, !check_buff_2, !check_buff_3)) );
        ]
 

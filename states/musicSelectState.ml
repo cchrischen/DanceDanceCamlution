@@ -78,11 +78,7 @@ let difficulty_select () =
   if medium then Constants.diff := 2;
   if hard then Constants.diff := 1
 
-let render () =
-  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
-  draw_text "Song Select" ((Constants.width / 2) - 300) 50 100 Color.raywhite;
-  difficulty_select ();
-  home_button_logic ();
+let buttons () =
   let rect =
     Rectangle.create
       ((float_of_int Constants.width /. 2.) -. 300.)
@@ -104,8 +100,14 @@ let render () =
   gui_state.is_open <- is_open;
   gui_state.list_view_ex_index <- list_view_ex_index;
   gui_state.list_view_ex_focus <- list_view_ex_focus;
-  gui_state.list_view_ex_active <- list_view_ex_active;
-  ()
+  gui_state.list_view_ex_active <- list_view_ex_active
+
+let render () =
+  Sprite.draw_sprite (Hashtbl.find !sprite_map "musicselectscreen") 0 0. 0.;
+  draw_text "Song Select" ((Constants.width / 2) - 300) 50 100 Color.raywhite;
+  difficulty_select ();
+  home_button_logic ();
+  buttons ()
 
 let reset () =
   gui_state.list_view_ex_index <- 0;

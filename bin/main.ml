@@ -1,5 +1,8 @@
+(* @authors Chris Chen (cc2785) Daniel Xie (dyx2) Nam Anh Dang (nd433) Shubham
+   Mohole (sam588) Rishi Yennu (rry9) *)
 open DDC
 open States
+open Raylib
 
 module SM1 =
   StateMachine.AddState (StateMachine.EmptyStateMachine ()) (MusicSelectState)
@@ -20,7 +23,6 @@ let init () =
   SM.init ()
 
 let rec loop () =
-  let open Raylib in
   match window_should_close () with
   | true -> close_window ()
   | false ->
@@ -36,6 +38,7 @@ let rec loop () =
             SM.init ();
             SM.load ();
             SM.set_state "select"
+        | Some "close" -> close_window ()
         | Some s ->
             SM.set_state s;
             SM.init ();
