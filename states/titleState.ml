@@ -20,8 +20,13 @@ let sound_map : (string, Raylib.Sound.t) Hashtbl.t = Hashtbl.create 10
 
 let load () =
   sprite_map := Sprite.initialize_sprites "data/sprites/titlestatesprites.csv";
+  Hashtbl.add sound_map "title_music"
+    (Raylib.load_sound "data/music/newer_wave.mp3");
   Hashtbl.add sound_map "start_game"
-    (Raylib.load_sound "data/sounds/start_game.wav")
+    (Raylib.load_sound "data/sounds/start_game.wav");
+  Raylib.set_sound_volume (Hashtbl.find sound_map "title_music") 0.25;
+  if (not !play_hit) && not !settings_hit then
+    Raylib.play_sound (Hashtbl.find sound_map "title_music")
 
 let init () = ()
 let buffer = ref None
@@ -45,12 +50,13 @@ let update () =
   let mx = get_mouse_x () in
   let my = get_mouse_y () in
   if !play_hit then (
-    play_hit := false;
+    Raylib.stop_sound (Hashtbl.find sound_map "title_music");
     Raylib.play_sound (Hashtbl.find sound_map "start_game");
     Raylib.wait_time 0.25;
     Some "select")
   else if Button.check_click (mx, my) !settings_button then (
     settings_hit := true;
+    Raylib.stop_sound (Hashtbl.find sound_map "title_music");
     Raylib.play_sound (Hashtbl.find sound_map "start_game");
     SettingsState.set_buffer 1;
     Some "settings")
@@ -91,5 +97,6 @@ let render () =
   play_button_logic (get_mouse_x ()) (get_mouse_y ()) MouseButton.Left
 
 let reset () =
+  play_hit := true;
   sprite_map := Hashtbl.create 1;
   buffer := None
