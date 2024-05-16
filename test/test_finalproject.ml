@@ -124,7 +124,7 @@ module GeneralBeatmapTester (S : SongT) = struct
            ( "check that song.beatmap matches read_beatmap_txt" >:: fun _ ->
              assert_equal (S.init "better-day.mp3").beatmap
                (Array.filter
-                  (fun x -> x > 0.7)
+                  (fun x -> x > DDC.Constants.offset)
                   (read_beatmap_txt "better-day.beatmap.txt")) );
            ( "check next_note_index incrementation" >:: fun _ ->
              let song = S.init "better-day.mp3" in
@@ -389,7 +389,7 @@ let button_tests =
          >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) circ_button_zero) );
        ]
-       
+
 let key1 = BUTTON1
 let key2 = BUTTON2
 let key3 = BUTTON3
