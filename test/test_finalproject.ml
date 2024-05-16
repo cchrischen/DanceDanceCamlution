@@ -488,14 +488,14 @@ let sprite_tests =
              (Array.length (test_aux_generate_sprite 10 10 10 5)) );
          ( "initialzing hashtable sprite check - first sprite frames check"
          >:: fun _ ->
-           assert_equal 14
-             (Array.length (Hashtbl.find initialize_sprites_test "1")) );
+           assert_equal 1
+             (Array.length (Hashtbl.find initialize_sprites_test "test1")) );
          ( "initialzing hashtable sprite check - second sprite frames check"
          >:: fun _ ->
-           assert_equal 14
-             (Array.length (Hashtbl.find initialize_sprites_test "2")) );
+           assert_equal 2
+             (Array.length (Hashtbl.find initialize_sprites_test "test2")) );
          ( "initialzing hashtable with empty sprite check" >:: fun _ ->
-           assert_raises (Invalid_argument "index out of bounds") (fun () ->
+           assert_raises Not_found (fun () ->
                Array.length (Hashtbl.find initialize_sprites_test "6")) );
        ]
 
