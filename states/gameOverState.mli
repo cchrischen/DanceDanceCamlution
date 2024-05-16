@@ -15,10 +15,11 @@ val init : unit -> unit
 
 val update : unit -> string option
 (** [update ()] checks for keyboard input. This state can transition into the
-    play state. *)
+    select state. *)
 
 val render : unit -> unit
-(** [render ()] draws the game over state. *)
+(** [render ()] draws the game over state, including the total points, accuracy,
+    and grade. *)
 
 val reset : unit -> unit
 (** [reset ()] resets the state to its initial state. *)

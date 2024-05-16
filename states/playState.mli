@@ -19,10 +19,11 @@ val update : unit -> string option
     state can transition to the pause state. *)
 
 val render : unit -> unit
-(** [render ()] draws a paused sign in the middle of the screen. *)
+(** [render ()] draws the falling notes, current score, background, and columns
+    of the game. *)
 
 val reset : unit -> unit
-(** [reset ()] resets the state to its initial state. *)
+(** [reset ()] resets the state to its initial state, particuarly the score. *)
 
 val load : unit -> unit
 (** [load ()] loads the sprites of the play state. *)

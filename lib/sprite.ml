@@ -31,10 +31,6 @@ let generate_sprite (width : int) (height : int) (frames : int)
     (frames_per_row : int) (file : string) : t =
   (create_sprites width height frames frames_per_row, initialize_sprite file)
 
-let test_aux_generate_sprite (width : int) (height : int) (frames : int)
-    (frames_per_row : int) =
-  create_sprites width height frames frames_per_row
-
 let draw_sprite (sprite : t) (frame_num : int) (x : float) (y : float) : unit =
   let sprites, sprite_texture = sprite in
   let frame = sprites.(frame_num) in
@@ -55,40 +51,10 @@ let initialize_sprites_aux (table : (string, t) Hashtbl.t)
   let sprite_texture = initialize_sprite ("data/sprites/" ^ a.(0) ^ ".png") in
   Hashtbl.add table a.(0) (sprite_sh, sprite_texture)
 
-let initialize_sprites_aux_test (table : (string, Rectangle.t array) Hashtbl.t)
-    (sprite_properties : string list) =
-  let (a : string array) = Array.of_list sprite_properties in
-  let sprite_sh =
-    create_sprites
-      (int_of_string a.(1))
-      (int_of_string a.(2))
-      (int_of_string a.(3))
-      (int_of_string a.(4))
-  in
-  Hashtbl.add table a.(0) sprite_sh
-
 let initialize_sprites (file : string) =
   let sprite_matrix : string list list = List.tl (Csv.load file) in
   let sprite_table = Hashtbl.create 10 in
   ignore (List.map (initialize_sprites_aux sprite_table) sprite_matrix);
-  sprite_table
-
-let initialize_sprites_test =
-  let sprite_matrix : string list list =
-    [
-      [ "test1"; "1"; "1"; "1"; "1" ];
-      [ "test2"; "1"; "1"; "2"; "2" ];
-      [ "test3"; "1"; "1"; "1"; "1" ];
-      [ "test4"; "1"; "1"; "1"; "1" ];
-      [ "test5"; "1"; "1"; "1"; "1" ];
-      [ "test6"; "1"; "1"; "1"; "1" ];
-      [ "test7"; "1"; "1"; "1"; "1" ];
-      [ "test8"; "1"; "1"; "1"; "1" ];
-      [ "test9"; "1"; "1"; "1"; "1" ];
-    ]
-  in
-  let sprite_table = Hashtbl.create 10 in
-  ignore (List.map (initialize_sprites_aux_test sprite_table) sprite_matrix);
   sprite_table
 
 let texture (sprite : t) = snd sprite

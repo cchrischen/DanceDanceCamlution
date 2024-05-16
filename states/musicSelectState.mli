@@ -18,7 +18,8 @@ val update : unit -> string option
     play state. *)
 
 val render : unit -> unit
-(** [render ()] draws the music selection menu in the middle of the screen. *)
+(** [render ()] draws the music selection menu in the middle of the screen and
+    the difficulty selection. *)
 
 val reset : unit -> unit
 (** [reset ()] resets the state to its initial state. *)

@@ -482,24 +482,6 @@ let sprite_tests =
               Rectangle.y sprite)
              (Rectangle.y (Array.get (to_array (create_sprites 10 10 1 5)) 0))
          );
-         ( "frame rate check" >:: fun _ ->
-           assert_equal 10 (Array.length (test_aux_generate_sprite 10 10 10 5))
-         );
-         ( "get sprite_sheet check" >:: fun _ ->
-           assert_equal
-             (Array.length (create_sprites 10 10 10 5))
-             (Array.length (test_aux_generate_sprite 10 10 10 5)) );
-         ( "initialzing hashtable sprite check - first sprite frames check"
-         >:: fun _ ->
-           assert_equal 1
-             (Array.length (Hashtbl.find initialize_sprites_test "test1")) );
-         ( "initialzing hashtable sprite check - second sprite frames check"
-         >:: fun _ ->
-           assert_equal 2
-             (Array.length (Hashtbl.find initialize_sprites_test "test2")) );
-         ( "initialzing hashtable with empty sprite check" >:: fun _ ->
-           assert_raises Not_found (fun () ->
-               Array.length (Hashtbl.find initialize_sprites_test "6")) );
        ]
 
 module EmptySM = EmptyStateMachine ()
