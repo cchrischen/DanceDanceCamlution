@@ -2,7 +2,7 @@ type t = int * float
 (** [t] is the type of data another state can send to the music select state. *)
 
 val name : string
-(** [name] is ["pause"]. *)
+(** [name] is ["over"]. *)
 
 val set_default : bool
 (** [set_default] is [false] because it is not the state the game starts. *)

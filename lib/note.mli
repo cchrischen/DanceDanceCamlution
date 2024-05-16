@@ -5,24 +5,29 @@ type accuracy =
   | Great
   | Good
   | Miss
+      (** The different categories of accuracy a player can achieve with each
+          hit, depending on how well-timed the hit was. Perfect > Great > Good >
+          Miss. *)
 
 type t
 (** The type underlying each note. *)
 
 val create_note : float -> float -> t
-(** Creates a note given [time], the time that the note reaches the bar (i.e.,
-    the optimal time for the player to hit it), and [base_score], the default
-    score value of this note without combo applied. *)
+(** [create_note x y] creates a note at the location specified by (x, y). The
+    note's height, width, and speed are determined by their respective values in
+    the Constants file. *)
 
 val update : t -> bool
-(** [update note] updates [note] position based on the position of the note on
-    the window (i.e if a note reaches end of window height resets position of
-    the note and resets the hit status for note - otherwise it moves the note
-    down in the window based on the speed of the note) *)
+(** [update note] updates [note]'s position so that it falls down at a rate
+    specified by [Constants.note_speed]. Returns whether the combo should be
+    reset to 0; in other words, if the note reaches the bottom of the screen
+    without being hit, returns true (meaning that the combo should be broken)
+    else false. *)
 
 val hit : t -> unit
-(** [hit note] if note has been hit then we reset the note at the top of the
-    window, otherwise changes field of the note to be hit *)
+(** [hit note] effectively causes [note] to be considered "hit". If the note has
+    not yet been hit, the note disappears and [has_been_hit] is set to true. If
+    the note has already been hit, does nothing. *)
 
 val get_sprite : t -> Rectangle.t
 (** [get_sprite note] returns the sprite field of the note *)
@@ -37,4 +42,6 @@ val calc_score : int -> accuracy -> int
 (** Calculates the score for this note, given [combo] and [accuracy]. *)
 
 val calc_accuracy : float -> accuracy
-(** Determines the accuracy with which this note was hit, given [time_hit]. *)
+(** [calc_accuracy overlap] determines the accuracy with which this note was
+    hit, given [overlap], which is the proportion of the note that overlaps with
+    the button at the time of the keypress. Requires: 0 < [overlap] <= 1. *)
