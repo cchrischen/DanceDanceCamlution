@@ -4,9 +4,11 @@ import sys
 
 from aubio import source, onset
 
+# Source code from:
 # https://aubio.org/doc/latest/onset_2test-onset_8c-example.html
 # https://github.com/aubio/aubio/blob/master/python/demos/demo_onset.py
 # https://aubio.org/manual/latest/py_io.html
+# https://github.com/RuolinZheng08/renpy-rhythm
 def get_onset_times(file_path):
     window_size = 1024 # FFT size
     hop_size = window_size // 4
