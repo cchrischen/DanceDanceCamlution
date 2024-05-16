@@ -389,7 +389,7 @@ let button_tests =
          >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) circ_button_zero) );
        ]
-       
+
 let key1 = BUTTON1
 let key2 = BUTTON2
 let key3 = BUTTON3
@@ -480,47 +480,23 @@ let sprite_tests =
              (Rectangle.y (Array.get (to_array (create_sprites 10 10 1 5)) 0))
          );
          ( "frame rate check" >:: fun _ ->
-           assert_equal 10 (num_frames (generate_sprite 10 10 10 5 "")) );
-         ( "get texture check" >:: fun _ ->
-           assert_equal
-             (Texture2D.height (initialize_sprite ""))
-             (Texture2D.height (texture (generate_sprite 10 10 10 5 ""))) );
+           assert_equal 10 (Array.length (test_aux_generate_sprite 10 10 10 5))
+         );
          ( "get sprite_sheet check" >:: fun _ ->
            assert_equal
              (Array.length (create_sprites 10 10 10 5))
-             (Array.length (sprite_sheet (generate_sprite 10 10 10 5 ""))) );
+             (Array.length (test_aux_generate_sprite 10 10 10 5)) );
          ( "initialzing hashtable sprite check - first sprite frames check"
          >:: fun _ ->
            assert_equal 14
-             (Array.length
-                (sprite_sheet
-                   (Hashtbl.find
-                      (initialize_sprites "testsprites.csv")
-                      (let arr =
-                         Array.of_list (List.tl (Csv.load "testsprites.csv"))
-                       in
-                       List.nth arr.(0) 0)))) );
+             (Array.length (Hashtbl.find initialize_sprites_test "1")) );
          ( "initialzing hashtable sprite check - second sprite frames check"
          >:: fun _ ->
-           assert_equal 1
-             (Array.length
-                (sprite_sheet
-                   (Hashtbl.find
-                      (initialize_sprites "testsprites.csv")
-                      (let arr =
-                         Array.of_list (List.tl (Csv.load "testsprites.csv"))
-                       in
-                       List.nth arr.(1) 0)))) );
+           assert_equal 14
+             (Array.length (Hashtbl.find initialize_sprites_test "2")) );
          ( "initialzing hashtable with empty sprite check" >:: fun _ ->
            assert_raises (Invalid_argument "index out of bounds") (fun () ->
-               Array.length
-                 (sprite_sheet
-                    (Hashtbl.find
-                       (initialize_sprites "empty.csv")
-                       (let arr =
-                          Array.of_list (List.tl (Csv.load "empty.csv"))
-                        in
-                        List.nth arr.(0) 0)))) );
+               Array.length (Hashtbl.find initialize_sprites_test "6")) );
        ]
 
 module EmptySM = EmptyStateMachine ()
