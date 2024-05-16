@@ -70,7 +70,16 @@ let update () =
     Some "play"
 
 let difficulty_select () =
-  draw_text "Select Difficulty:" 40 210 30 Color.raywhite;
+  draw_text "Select Difficulty:" 30 210 35 Color.raywhite;
+  draw_text "Current Difficulty:" 45 250 20 Color.raywhite;
+  let text, color =
+    match !Constants.diff with
+    | 1 -> ("Hard", Color.red)
+    | 2 -> ("Medium", Color.orange)
+    | 3 -> ("Easy", Color.green)
+    | _ -> ("None", Color.black)
+  in
+  draw_text text 240 250 20 color;
   let easy = button (Rectangle.create 120. 300.0 100. 50.0) "Easy" in
   let medium = button (Rectangle.create 120. 400.0 100. 50.0) "Medium" in
   let hard = button (Rectangle.create 120. 500.0 100. 50.0) "Hard" in
