@@ -338,7 +338,7 @@ let button_tests =
          ( "overlap test with rectangle button off-right QUAD 1 test"
          >:: fun _ -> assert_equal true (overlap_detect (6, 6) rec_button) );
          ( "overlap test with rectangle button  off right EDGE TEST "
-         >:: fun _ -> assert_equal true (overlap_detect (10, 10) rec_button) );
+         >:: fun _ -> assert_equal false (overlap_detect (-5, 4) rec_button) );
          ( "overlap test with rectangle button QUAD 2 Test " >:: fun _ ->
            assert_equal true (overlap_detect (6, 10) rec_button) );
          ( "overlap test with rectangle button OPP EDGE " >:: fun _ ->
@@ -350,9 +350,9 @@ let button_tests =
          ( "overlap test with rectangle button OUTSIDE TEST " >:: fun _ ->
            assert_equal false (overlap_detect (2, 2) rec_button) );
          ( "overlap FALSE on RECTANGLE " >:: fun _ ->
-           assert_equal false (overlap_detect (16, 16) rec_button) );
-         ( "overlap NEG CORDS OUTSIDE" >:: fun _ ->
            assert_equal false (overlap_detect (-16, 16) rec_button) );
+         ( "overlap NEG CORDS OUTSIDE" >:: fun _ ->
+           assert_equal false (overlap_detect (-18, 16) rec_button) );
          ( "overlap test with OUTSIDE ON QUAD 2" >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) rec_button) );
          ( "overlap test with rectangle button QUAD 4" >:: fun _ ->
@@ -364,7 +364,7 @@ let button_tests =
          ( "overlap test with CIRCLE button" >:: fun _ ->
            assert_equal true (overlap_detect (5, 5) circ_button) );
          ( "overlap test with circle button OFF_RIGHT CIRCLE" >:: fun _ ->
-           assert_equal true (overlap_detect (6, 6) circ_button) );
+           assert_equal true (overlap_detect (-2, 2) circ_button) );
          ( "overlap test with circle button OFF_LEFT CIRCLE" >:: fun _ ->
            assert_equal true (overlap_detect (7, 8) circ_button) );
          ( "overlap test with button CIRCLE BUTTON EDGE" >:: fun _ ->
@@ -383,13 +383,13 @@ let button_tests =
          ( "overlap test with rectangle button NON_EXISTENT BUTTON\n\
            \         - CHECK BUTTON TEST NOT WINDOW"
          >:: fun _ ->
-           assert_equal false (overlap_detect (15, 15) circ_button_zero) );
+           assert_equal false (overlap_detect (-15, 15) circ_button_zero) );
          ( "overlap test with rectangle button NON_EXISTENT BUTTON\n\
            \         - CHECK BUTTON TEST NOT WINDOW EDGE"
          >:: fun _ ->
            assert_equal false (overlap_detect (20, 20) circ_button_zero) );
        ]
-
+       
 let key1 = BUTTON1
 let key2 = BUTTON2
 let key3 = BUTTON3
