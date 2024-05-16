@@ -10,6 +10,7 @@ open DDC.Column
 open DDC.Button
 open DDC.Keybind
 open QCheck2
+open Batteries
 
 let list_end_matches_size c =
   let list_util = make_list c in
@@ -83,17 +84,6 @@ let util_tests =
            assert_equal 5. (distance (0, 0) (-3, -4)) );
        ]
 
-let txt_to_array txt =
-  let lines = BatList.of_enum (BatFile.lines_of txt) in
-  let rec aux lines acc =
-    match lines with
-    | [] -> acc
-    | h :: t ->
-        let acc = Array.append acc [| float_of_string h |] in
-        aux t acc
-  in
-  aux lines [||]
-
 module type SongT = sig
   type song = {
     audio_source : Raylib.Music.t;
@@ -101,45 +91,59 @@ module type SongT = sig
     mutable next_note_index : int;
   }
 
-  (*val create_beatmap : string -> int*)
   val init : string -> song
   val is_on_next_note : song -> float -> bool
   val inc_note : song -> unit
   val get_index : song -> int
 end
 
-module GeneralSongTester (S : SongT) = struct
+module GeneralBeatmapTester (S : SongT) = struct
   let tests =
-    [
-      ( "beatmap test" >:: fun _ ->
-        assert_equal
-          (txt_to_array "better-day.mp3")
-          (S.init "better-day.mp3").beatmap );
-      ( "check note_index incrementation p1-intialization" >:: fun _ ->
-        assert_equal 1 (S.init "better-day.mp3").next_note_index );
-      ( "check note_index incrementation p2-stepping" >:: fun _ ->
-        assert_equal 2
-          (let song = S.(init "better-day.mp3") in
-           let _ = S.inc_note song in
-           let _ = S.inc_note song in
-           S.get_index song) );
-      ( "check note accuracy step" >:: fun _ ->
-        assert_equal false
-          (let song = S.(init "better-day.mp3") in
-           S.is_on_next_note song 0.1) );
-    ]
+    "tests for beatmap module"
+    >::: [
+           ( "reading/converting empty beatmap" >:: fun _ ->
+             assert_equal [||] (read_beatmap_txt "emptyBeatmapTest.txt") );
+           ( "reading/converting non-empty beatmap" >:: fun _ ->
+             assert_equal
+               [|
+                 12.0867;
+                 2.42978;
+                 2.39154;
+                 3.31294;
+                 3.732412;
+                 4.15222;
+                 4.3611;
+                 4.57307;
+                 0.4313;
+                 0.84338;
+                 1.25890;
+               |]
+               (read_beatmap_txt "beatmapTest.txt") );
+           ( "check 0 for get initial index of song" >:: fun _ ->
+             assert_equal 0 (S.get_index (S.init "better-day.mp3")) );
+           ( "check that song.beatmap matches read_beatmap_txt" >:: fun _ ->
+             assert_equal (S.init "better-day.mp3").beatmap
+               (Array.filter
+                  (fun x -> x > 0.7)
+                  (read_beatmap_txt "better-day.beatmap.txt")) );
+           ( "check next_note_index incrementation" >:: fun _ ->
+             let song = S.init "better-day.mp3" in
+             let _ = S.inc_note song in
+             assert_equal 1 song.next_note_index );
+           ( "check get_index incrementation" >:: fun _ ->
+             assert_equal 2
+               (let song = S.(init "better-day.mp3") in
+                let _ = S.inc_note song in
+                let _ = S.inc_note song in
+                S.get_index song) );
+           ( "check note accuracy step" >:: fun _ ->
+             assert_equal false
+               (let song = S.(init "better-day.mp3") in
+                S.is_on_next_note song 0.1) );
+         ]
 end
 
-module BeatMapTest = GeneralSongTester (Song)
-
-let beatmap_tests =
-  "test suite for notes module "
-  >::: [
-         ( "a converting beatmap txt to a list" >:: fun _ ->
-           assert_equal
-             (txt_to_array "beatmapTest.txt")
-             (read_beatmap_txt "beatmapTest.txt") );
-       ]
+module BeatMapTest = GeneralBeatmapTester (Song)
 
 let sample_note = create_note 5. 5.
 let close_to_edge = create_note 5. 716.
@@ -174,34 +178,34 @@ let note_tests =
            assert_equal 8.
              (let _ = update sample_note in
               get_speed sample_note) );
-         ( "note calcualtion of score check - Perfect" >:: fun _ ->
+         ( "note calculation of score check - Perfect" >:: fun _ ->
            assert_equal 120 (calc_score 3 Perfect) );
-         ( "note\n            calcualtion of score check - Great" >:: fun _ ->
+         ( "note\n            calculation of score check - Great" >:: fun _ ->
            assert_equal 80 (calc_score 3 Great) );
-         ( "note calcualtion of score\n            check - Good" >:: fun _ ->
+         ( "note calculation of score\n            check - Good" >:: fun _ ->
            assert_equal 40 (calc_score 3 Good) );
-         ( "note calcualtion of score check - Miss" >:: fun _ ->
+         ( "note calculation of score check - Miss" >:: fun _ ->
            assert_equal 0 (calc_score 3 Miss) );
-         ( "note calcualtion of score check - Miss" >:: fun _ ->
+         ( "note calculation of score check - Miss" >:: fun _ ->
            assert_equal 0 (calc_score 1 Miss) );
-         ( "note calcualtion of score check - Miss" >:: fun _ ->
+         ( "note calculation of score check - Miss" >:: fun _ ->
            assert_equal 0 (calc_score 2 Miss) );
-         ( "note\n            calcualtion of accuracy check - Good" >:: fun _ ->
+         ( "note\n            calculation of accuracy check - Good" >:: fun _ ->
            assert_equal Good (calc_accuracy 0.1) );
-         ( "note\n            calcualtion of accuracy check - Good" >:: fun _ ->
+         ( "note\n            calculation of accuracy check - Good" >:: fun _ ->
            assert_equal Good (calc_accuracy 0.2) );
-         ( "note\n            calcualtion of accuracy check - Great" >:: fun _ ->
+         ( "note\n            calculation of accuracy check - Great" >:: fun _ ->
            assert_equal Great (calc_accuracy 0.3) );
-         ( "note\n            calcualtion of accuracy check - Great" >:: fun _ ->
+         ( "note\n            calculation of accuracy check - Great" >:: fun _ ->
            assert_equal Great (calc_accuracy 0.5) );
-         ( "note\n            calcualtion of accuracy check - Perfect"
+         ( "note\n            calculation of accuracy check - Perfect"
          >:: fun _ -> assert_equal Perfect (calc_accuracy 0.7) );
-         ( "note\n            calcualtion of accuracy check - Perfect"
+         ( "note\n            calculation of accuracy check - Perfect"
          >:: fun _ -> assert_equal Perfect (calc_accuracy 1.0) );
        ]
 
 let column_tests =
-  "test suite for notes module "
+  "test suite for column module "
   >::: [
          ( "create a column" >:: fun _ ->
            assert_equal
@@ -762,10 +766,6 @@ let reset_test =
                   | Some s -> ThreeStateSMCopy2.set_state s
                 done
               in
-              let _ =
-                Printf.printf "%d %d %d " !check_buff_1 !check_buff_2
-                  !check_buff_3
-              in
               (!check_buff_1, !check_buff_2, !check_buff_3)) );
        ]
 
@@ -779,6 +779,7 @@ let suite =
          note_tests;
          sprite_tests;
          column_tests;
+         BeatMapTest.tests;
          button_tests;
          keybind_tests;
          mod_suite;
