@@ -570,7 +570,7 @@ module State1 : State with type t = int = struct
   let load () = ()
 end
 
-module State2 : State = struct
+module State2 : State with type t = int = struct
   type t = int
 
   let buffer = ref None
@@ -584,7 +584,7 @@ module State2 : State = struct
   let load () = ()
 end
 
-module State3 : State = struct
+module State3 : State with type t = int = struct
   type t = int
 
   let buffer = ref None
@@ -679,6 +679,96 @@ let multi_state_state_machine_tests =
               ThreeStateSM.get_state ()) );
        ]
 
+let check_buff_1 = ref 1
+let check_buff_2 = ref 2
+let check_buff_3 = ref 3
+
+module State1_copy : State with type t = int = struct
+  type t = int
+
+  let buffer = ref None
+  let name = "State 1"
+  let set_default = false
+  let set_buffer d = buffer := Some d
+  let init () = ()
+
+  let update () =
+    check_buff_1 := Option.get !buffer;
+    Some "State 2"
+
+  let render () = ()
+  let reset () = buffer := Some 69
+  let load () = ()
+end
+
+module State2_copy : State with type t = int = struct
+  type t = int
+
+  let buffer = ref None
+  let name = "State 2"
+  let set_default = true
+  let init () = ()
+  let set_buffer d = buffer := Some d
+
+  let update () =
+    check_buff_2 := Option.get !buffer;
+    Some "State 3"
+
+  let render () = ()
+  let reset () = buffer := Some 420
+  let load () = ()
+end
+
+module State3_copy : State with type t = int = struct
+  type t = int
+
+  let buffer = ref None
+  let name = "State 3"
+  let set_default = false
+  let init () = ()
+  let set_buffer d = buffer := Some d
+
+  let update () =
+    check_buff_3 := Option.get !buffer;
+    Some "State 1"
+
+  let render () = ()
+  let reset () = buffer := Some 69420
+  let load () = ()
+end
+
+module OneStateSMCopy2 : StateMachine =
+  AddState (EmptyStateMachine ()) (State1_copy)
+
+module TwoStateSMCopy2 : StateMachine = AddState (OneStateSMCopy2) (State2_copy)
+
+module ThreeStateSMCopy2 : StateMachine =
+  AddState (TwoStateSMCopy2) (State3_copy)
+
+let reset_test =
+  "reset test"
+  >::: [
+         ( "3 States : when reseting, all buffers of the states should have \
+            their default values"
+         >:: fun _ ->
+           assert_equal (69, 420, 69420)
+             (let () = ThreeStateSMCopy2.reset () in
+              let () = ThreeStateSMCopy2.set_state "State 1" in
+              let () =
+                for _ = 0 to 3 do
+                  let transition = ThreeStateSMCopy2.update () in
+                  match transition with
+                  | None -> ()
+                  | Some s -> ThreeStateSMCopy2.set_state s
+                done
+              in
+              let _ =
+                Printf.printf "%d %d %d " !check_buff_1 !check_buff_2
+                  !check_buff_3
+              in
+              (!check_buff_1, !check_buff_2, !check_buff_3)) );
+       ]
+
 let mod_tests = List.flatten []
 let mod_suite = "module operations test suite" >::: mod_tests
 
@@ -698,6 +788,7 @@ let suite =
          ounit_rnd_test_list_size;
          ounit_rnd_test_array_string;
          ounit_rnd_test_distance;
+         reset_test;
        ]
 
 let _ = run_test_tt_main suite
