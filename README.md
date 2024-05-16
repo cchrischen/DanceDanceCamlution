@@ -22,3 +22,8 @@ At the end of a song, your accuracy of notes hit is displayed.
 * Nam Anh Dang (nd433)
 * Shubham Mohole (sam588)
 * Rishi Yennu (rry9)
+
+Title Screen Music Attribution: 
+"Newer Wave" Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
