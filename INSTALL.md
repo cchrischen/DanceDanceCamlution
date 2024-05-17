@@ -9,7 +9,7 @@ The respective OCaml and Python package installers, opam and pip, are assumed pr
     ```
 2. Install the python packages.
     ```shell
-    pip install -r lib/beatmap-python/requirements.txt
+    pip install -r lib/beatmap_python/requirements.txt
     ```
 3. Run the program
     ```shell
